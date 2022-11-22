@@ -11,6 +11,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>11</java.version>
         <mainClass>edu.cwru.csds341.vapor.gui.MainApp</mainClass>
     </properties>
 
@@ -69,6 +70,7 @@
                 <version>3.8.0</version>
                 <configuration>
                     <release>11</release>
+                    <forceJavacCompilerUse>true</forceJavacCompilerUse>
                 </configuration>
                 <dependencies>
                     <dependency>
