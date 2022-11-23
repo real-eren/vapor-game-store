@@ -11,6 +11,11 @@ import java.util.Map;
  * todo: fill in javadocs
  */
 public enum Action {
+
+    //todo
+    //make callable statements in database, correct storedProcedure strings for each action
+    //correct structure of storedProcureStrings (ie spacing, brackets)
+
     EXAMPLE_ADD_GAME(
             AType.UPDATE,
             "add game", "ag",
@@ -18,6 +23,48 @@ public enum Action {
             new Parameter(PType.STRING, "game_name", "game name", Requirement.SimpleReq.NONEMPTY),
             new Parameter(PType.INT, "rating", "rating", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER)
             ),
+    CREATE_ACCOUNT(
+        AType.UPDATE,
+        "create account", "c",
+        "user.create_account(?)",
+        new Parameter(PType.STRING, "username", "username", Requirement.SimpleReq.NONEMPTY)
+    ),
+    MAKE_COMMENT(
+        AType.UPDATE,
+        "add new comment", "mc",
+        "user_profile_comment.make_comment(?,?,?)",
+        new Parameter(PType.INT, "profile_id", "user id", Requirement.SimpleReq.NONEMPTY),
+        new Parameter(PType.STRING, "commenter_id", "users user id", Requirement.SimpleReq.NONEMPTY),
+        new Parameter(PType.STRING, "message", "message", Requirement.SimpleReq.NONEMPTY)
+    ),
+    VIEW_FOLLOWERS(
+            AType.QUERY,
+            "view friends", "vf",
+            "followers.viewFollowers(?,?)",
+            new Parameter(PType.STRING, "user1", "user id", Requirement.SimpleReq.NONEMPTY)
+            ),
+    FOLLOW_USER(
+        AType.UPDATE,
+        "follow a user", "f",
+        "follows.follow_user(?,?)",
+        new Parameter(PType.INT, "userA_id", "user id", Requirement.SimpleReq.NONEMPTY),
+        new Parameter(PType.INT, "userB_id", "users user id", Requirement.SimpleReq.NONEMPTY)
+    ),
+    UNFOLLOW_USER(
+        AType.UPDATE,
+        "unfollow a user", "u",
+        "follows.unfollow(?,?)",
+        new Parameter(PType.INT, "userA_id", "user id", Requirement.SimpleReq.NONEMPTY),
+        new Parameter(PType.INT, "userB_id", "users user id", Requirement.SimpleReq.NONEMPTY)
+    ),
+    GRANT_GAME(
+        AType.UPDATE,
+        "grant possesion of a game", "gg",
+        "game_ownership.grant_game_ownsership(?,?)",
+        new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY),
+        new Parameter(PType.INT, "game_id", "game's id", Requirement.SimpleReq.NONEMPTY)
+    )
+    
     ;
 
     final AType type;
