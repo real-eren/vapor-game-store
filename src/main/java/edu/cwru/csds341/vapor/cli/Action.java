@@ -5,15 +5,23 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 /**
- * todo: fill in javadocs
+ * Something that can be done in the application, such as "add a game", "create an account".
+ * todo: fill in javadocs, figure out how to expose/take in PreparedStatement
  */
 public enum Action {
-    ADD_GAME("add game", "ag", List.of(), null) {
+    EXAMPLE_ADD_GAME(
+            "add game", "ag",
+            null,
+            new Parameter("game name", SimpleReq.NONEMPTY),
+            new Parameter("rating", SimpleReq.NONEMPTY, SimpleReq.POSITIVE_INTEGER)
+            ) {
         @Override
         void apply(Map<String, String> args) throws SQLException {
-            preparedStatement.setString(0, args.get("game name"));
+            preparedStatement.setString(1, args.get("game name"));
+            preparedStatement.setString(2, args.get("rating"));
         }
     },
     ;
@@ -25,11 +33,14 @@ public enum Action {
 
     final PreparedStatement preparedStatement;
 
-    Action(String fullName, String shortname, List<Parameter> parameters, PreparedStatement preparedStatement) {
+    Action(String fullName, String shortname, PreparedStatement preparedStatement, List<Parameter> parameters) {
         this.fullName = fullName;
         this.shortName = shortname;
         this.parameters = parameters;
         this.preparedStatement = preparedStatement;
+    }
+    Action(String fullName, String shortname, PreparedStatement preparedStatement, Parameter... parameters) {
+        this(fullName, shortname, preparedStatement, List.of(parameters));
     }
 
 
@@ -56,7 +67,7 @@ public enum Action {
     }
 
     /**
-     * Set parametes
+     * Set parameters. Assumes map has all necessary fields
      */
     abstract void apply(Map<String, String> args) throws SQLException;
 
@@ -68,29 +79,45 @@ public enum Action {
     }
 
     static class Parameter {
-        String name;
-        List<Requirement> requirements;
+        final String name;
+        final List<Requirement> requirements;
 
         public Parameter(String name, List<Requirement> requirements) {
             this.name = name;
-            this.requirements = requirements;
+            this.requirements = List.copyOf(requirements);
         }
 
+        public Parameter(String name, Requirement... requirements) {
+            this(name, List.of(requirements));
+        }
     }
 
-    static class Requirement {
+    /**
+     * Requirements that may be shared by several Actions
+     */
+    enum SimpleReq implements Requirement {
+        NONEMPTY(Predicate.not(String::isEmpty), "value cannot be empty"),
+        POSITIVE_INTEGER(Pattern.compile("\\d+"),"value must be a positive integer"),
+        ;
 
-        public Requirement(Predicate<String> predicate, String message) {
+        SimpleReq(Predicate<String> predicate, String message) {
             this.predicate = predicate;
+            this.message = message;
+        }
+        SimpleReq(Pattern pattern, String message) {
+            this.predicate = pattern.asMatchPredicate();
             this.message = message;
         }
 
         private final Predicate<String> predicate;
-        final String message;
+        private final String message;
 
-        public boolean accepts(String str) {
-            return predicate.test(str);
-        }
+
+        @Override
+        public boolean accepts(String str) { return predicate.test(str); }
+
+        @Override
+        public String getMessage() { return message; }
     }
-    
+
 }
