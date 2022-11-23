@@ -43,12 +43,12 @@ public class MainApp {
         //  preventing that string from being used as an actual param
 
         // has list of parameters it needs from user
-        Map<String, String> userInputs = new HashMap<>(action.parameters.size());
+        Map<Action.Parameter, String> userInputs = new HashMap<>(action.parameters.size());
         for (Action.Parameter parameter : action.parameters) {
             boolean valid = false;
             String input = null;
             while (! valid) {
-                System.out.print("Enter value for '" + parameter.name + "': ");
+                System.out.print("Enter value for '" + parameter.displayName + "': ");
                 input = scanner.nextLine();
                 valid = true;
                 // validate
@@ -64,7 +64,7 @@ public class MainApp {
             // handle: repeat this prompt, or cancel action?
             assert input != null : "input should have been set before exiting loop";
 
-            userInputs.put(parameter.name, input);
+            userInputs.put(parameter, input);
         }
 
         var cs = action.getCallableStatement(connection);

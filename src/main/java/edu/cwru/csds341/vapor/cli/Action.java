@@ -1,12 +1,10 @@
 package edu.cwru.csds341.vapor.cli;
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.SQLException;
+import edu.cwru.csds341.vapor.cli.Action.Parameter.PType;
+
+import java.sql.*;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 /**
  * Something that can be done in the application, such as "add a game", "create an account".
@@ -14,19 +12,15 @@ import java.util.regex.Pattern;
  */
 public enum Action {
     EXAMPLE_ADD_GAME(
+            AType.UPDATE,
             "add game", "ag",
             "[schemaName].[storedProcedureName](?,?)",
-            new Parameter("game name", SimpleReq.NONEMPTY),
-            new Parameter("rating", SimpleReq.NONEMPTY, SimpleReq.POSITIVE_INTEGER)
-            ) {
-        @Override
-        void apply(CallableStatement cs, Map<String, String> args) throws SQLException {
-            cs.setString(1, args.get("game name"));
-            cs.setString(2, args.get("rating"));
-        }
-    },
+            new Parameter(PType.STRING, "game_name", "game name", Requirement.SimpleReq.NONEMPTY),
+            new Parameter(PType.INT, "rating", "rating", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER)
+            ),
     ;
 
+    final AType type;
     final String fullName;
     final String shortName;
 
@@ -35,14 +29,23 @@ public enum Action {
 
     final List<Parameter> parameters;
 
-    Action(String fullName, String shortname, String storedProcedureString, List<Parameter> parameters) {
+    /** Correlates to SQL statements */
+    enum AType {
+        /** Insert, Update, Delete */
+        UPDATE,
+        /** Select */
+        QUERY
+    }
+
+    Action(AType type, String fullName, String shortname, String storedProcedureString, List<Parameter> parameters) {
+        this.type = type;
         this.fullName = fullName;
         this.shortName = shortname;
         this.storedProcedureString = String.format("{call %s}", storedProcedureString);
         this.parameters = parameters;
     }
-    Action(String fullName, String shortname, String storedProcedureString, Parameter... parameters) {
-        this(fullName, shortname, storedProcedureString, List.of(parameters));
+    Action(AType type, String fullName, String shortname, String storedProcedureString, Parameter... parameters) {
+        this(type, fullName, shortname, storedProcedureString, List.of(parameters));
     }
 
 
@@ -76,8 +79,23 @@ public enum Action {
     /**
      * Set parameters. Assumes map has all necessary fields
      */
-    abstract void apply(CallableStatement cs, Map<String, String> args) throws SQLException;
+    public void apply(CallableStatement cs, Map<Parameter, String> args) throws SQLException {
+        for (var entry : args.entrySet()) applyParam(cs, entry.getKey(), entry.getValue());
+    }
 
+    private void applyParam(CallableStatement cs, Parameter parameter, String val) throws SQLException {
+        switch (parameter.type) {
+            case INT:
+                cs.setInt(parameter.argName, Integer.parseInt(val));
+                break;
+            case STRING:
+                cs.setString(parameter.argName, val);
+                break;
+            case DATE:
+                cs.setDate(parameter.argName, Date.valueOf(val));
+                break;
+        }
+    }
 
     @Override
     public String toString() {
@@ -85,46 +103,34 @@ public enum Action {
         return super.toString();
     }
 
+    /** An argument the user must provide to the Action. */
     static class Parameter {
-        final String name;
+
+        /** What SQL type this Parameter maps to */
+        final PType type;
+
+        /** The name used in the SQL stored Procedure */
+        final String argName;
+
+        /** The name shown to the user */
+        final String displayName;
+
+        /** Predicates to enforce on the user-given string */
         final List<Requirement> requirements;
 
-        public Parameter(String name, List<Requirement> requirements) {
-            this.name = name;
+        /** Maps to SQL data types */
+        enum PType { INT, STRING, DATE }
+
+        public Parameter(PType type, String argName, String displayName, List<Requirement> requirements) {
+            this.type = type;
+            this.argName = argName;
+            this.displayName = displayName;
             this.requirements = List.copyOf(requirements);
         }
 
-        public Parameter(String name, Requirement... requirements) {
-            this(name, List.of(requirements));
+        public Parameter(PType type, String argName, String displayName, Requirement... requirements) {
+            this(type, argName, displayName, List.of(requirements));
         }
-    }
-
-    /**
-     * Requirements that may be shared by several Actions
-     */
-    enum SimpleReq implements Requirement {
-        NONEMPTY(Predicate.not(String::isEmpty), "value cannot be empty"),
-        POSITIVE_INTEGER(Pattern.compile("\\d+"),"value must be a positive integer"),
-        ;
-
-        SimpleReq(Predicate<String> predicate, String message) {
-            this.predicate = predicate;
-            this.message = message;
-        }
-        SimpleReq(Pattern pattern, String message) {
-            this.predicate = pattern.asMatchPredicate();
-            this.message = message;
-        }
-
-        private final Predicate<String> predicate;
-        private final String message;
-
-
-        @Override
-        public boolean accepts(String str) { return predicate.test(str); }
-
-        @Override
-        public String getMessage() { return message; }
     }
 
 }
