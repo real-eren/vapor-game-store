@@ -1,5 +1,7 @@
 package edu.cwru.csds341.vapor.cli;
 
+import java.sql.CallableStatement;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +28,15 @@ public class MainApp {
         // close database connection
     }
 
-    private static void processAction(Scanner scanner, Action action) throws SQLException {
+    /**
+     *
+     * @param scanner  where to get user input from
+     * @param connection  where to access the database from
+     * @param action  which command is being processed.
+     * @return  CallableStatement that is ready to execute
+     * @throws SQLException
+     */
+    private static CallableStatement prepareStatement(Scanner scanner, Connection connection, Action action) throws SQLException {
         // todo: implement cancelling
         //   look for "!cancel"
         // TODO: think of way to provide "quit" keyword without
@@ -57,14 +67,15 @@ public class MainApp {
             userInputs.put(parameter.name, input);
         }
 
-        // run function with those args
-        action.apply(userInputs);
-        // todo: check return val etc
-        action.preparedStatement.execute();
+        var cs = action.getCallableStatement(connection);
+        action.apply(cs, userInputs);
+        return cs;
     }
 
     public static void main(String[] args) throws SQLException {
-        try (Scanner scanner = new Scanner(System.in)) {
+        try (Scanner scanner = new Scanner(System.in);
+             Connection connection = null; // todo: create connection
+        ) {
             greetUser();
 
             // Main loop
@@ -93,7 +104,13 @@ public class MainApp {
 
                 // valid action chosen
                 if (action == null) System.out.println("Invalid action, try again");
-                else processAction(scanner, action);
+                else {
+                    CallableStatement cs = prepareStatement(scanner, connection, action);
+                    // todo, distinguish query actions from update actions
+                    //  handle separately?
+                    cs.executeQuery();
+                    cs.executeUpdate();
+                }
 
                 // repeat
             }
