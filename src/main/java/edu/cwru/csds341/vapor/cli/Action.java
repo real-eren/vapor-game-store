@@ -63,6 +63,56 @@ public enum Action {
         "game_ownership.grant_game_ownsership(?,?)",
         new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY),
         new Parameter(PType.INT, "game_id", "game's id", Requirement.SimpleReq.NONEMPTY)
+    ),
+    VIEW_PROFILE(
+        AType.QUERY,
+        "view user profile", "vf",
+        "user.view_profile(?)",
+        new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY)
+    ),
+    VIEW_GAMES_OWNED(
+        AType.QUERY,
+        "view games owned", "vg",
+        "game_ownership.view_games_owned(?)",
+        new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY) 
+    ),
+    VIEW_USER_INFO(
+        AType.QUERY,
+        "view username and join date", "vu",
+        "user.view_info(?)",
+        new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY)
+    ),
+    //could be many more as said in query doc
+    SEARCH_GAMES_ESRB_RATING(
+        AType.QUERY,
+        "search games by ESRB rating", "se",
+        "games.search_esrb_rating(?)",
+        new Parameter(PType.INT, "rating_id", "ESRB rating id", Requirement.SimpleReq.NONEMPTY)
+    ),
+    SEARCH_GAMES_HIGHEST_RATING(
+        AType.QUERY,
+        "search games by highest rating average", "sa",
+        "games.search_highest_average()"
+        //would not take in any parameters
+    ),
+    VIEW_GAME_DETAILS(
+        AType.QUERY,
+        "view game details", "vd",
+        "games.view_game_details(?)",
+        new Parameter(PType.INT, "game_id", "game id", Requirement.SimpleReq.NONEMPTY)
+    ),
+    VIEW_FOLLOWED_GAME_SIMILARITIES(
+        AType.QUERY,
+        "users followed that own game", "vfg",
+        "user.followed_game_similarities(?,?)",
+        new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY),
+        new Parameter(PType.INT, "game_id", "game id", Requirement.SimpleReq.NONEMPTY)
+    ),
+    VIEW_BEST_SELLING(
+        AType.QUERY,
+        "view top selling", "vs",
+        "games.best_selling()"
+        //would not take any parameters
     )
     
     ;
