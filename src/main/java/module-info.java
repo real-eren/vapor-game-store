@@ -2,7 +2,6 @@ module edu.cwru.csds341.vapor {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.media;
-    requires commons.cli;
     requires java.sql;
     
     opens edu.cwru.csds341.vapor.gui to javafx.fxml;
