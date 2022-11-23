@@ -17,7 +17,7 @@ public class MainApp {
     private static void printHelp() {
         System.out.println("Available commands:");
         for (Action value : Action.VALUES) {
-            System.out.println(value);
+            System.out.println(value.fullName + ": " + value.shortName);
         }
         // todo: further formatting?
     }

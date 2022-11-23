@@ -14,8 +14,8 @@ public enum Action {
 
     //todo
     //make callable statements in database, correct storedProcedure strings for each action
-    //correct structure of storedProcureStrings (ie spacing, brackets)
 
+    /*
     EXAMPLE_ADD_GAME(
             AType.UPDATE,
             "add game", "ag",
@@ -23,16 +23,17 @@ public enum Action {
             new Parameter(PType.STRING, "game_name", "game name", Requirement.SimpleReq.NONEMPTY),
             new Parameter(PType.INT, "rating", "rating", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER)
             ),
+    */
     CREATE_ACCOUNT(
         AType.UPDATE,
         "create account", "c",
-        "user.create_account(?)",
+        "[user].[create_account](?)",
         new Parameter(PType.STRING, "username", "username", Requirement.SimpleReq.NONEMPTY)
     ),
     MAKE_COMMENT(
         AType.UPDATE,
         "add new comment", "mc",
-        "user_profile_comment.make_comment(?,?,?)",
+        "[user_profile_comment].[make_comment(?,?,?)]",
         new Parameter(PType.INT, "profile_id", "user id", Requirement.SimpleReq.NONEMPTY),
         new Parameter(PType.STRING, "commenter_id", "users user id", Requirement.SimpleReq.NONEMPTY),
         new Parameter(PType.STRING, "message", "message", Requirement.SimpleReq.NONEMPTY)
@@ -40,78 +41,78 @@ public enum Action {
     VIEW_FOLLOWERS(
             AType.QUERY,
             "view friends", "vf",
-            "followers.viewFollowers(?,?)",
+            "[followers].[viewFollowers](?,?)",
             new Parameter(PType.STRING, "user1", "user id", Requirement.SimpleReq.NONEMPTY)
             ),
     FOLLOW_USER(
         AType.UPDATE,
         "follow a user", "f",
-        "follows.follow_user(?,?)",
+        "[follows].[follow_user](?,?)",
         new Parameter(PType.INT, "userA_id", "user id", Requirement.SimpleReq.NONEMPTY),
         new Parameter(PType.INT, "userB_id", "users user id", Requirement.SimpleReq.NONEMPTY)
     ),
     UNFOLLOW_USER(
         AType.UPDATE,
         "unfollow a user", "u",
-        "follows.unfollow(?,?)",
+        "[follows].[unfollow](?,?)",
         new Parameter(PType.INT, "userA_id", "user id", Requirement.SimpleReq.NONEMPTY),
         new Parameter(PType.INT, "userB_id", "users user id", Requirement.SimpleReq.NONEMPTY)
     ),
     GRANT_GAME(
         AType.UPDATE,
         "grant possesion of a game", "gg",
-        "game_ownership.grant_game_ownsership(?,?)",
+        "g[ame_ownership].[grant_game_ownsership](?,?)",
         new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY),
         new Parameter(PType.INT, "game_id", "game's id", Requirement.SimpleReq.NONEMPTY)
     ),
     VIEW_PROFILE(
         AType.QUERY,
         "view user profile", "vf",
-        "user.view_profile(?)",
+        "[user].[view_profile](?)",
         new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY)
     ),
     VIEW_GAMES_OWNED(
         AType.QUERY,
         "view games owned", "vg",
-        "game_ownership.view_games_owned(?)",
+        "[game_ownership].[view_games_owned](?)",
         new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY) 
     ),
     VIEW_USER_INFO(
         AType.QUERY,
         "view username and join date", "vu",
-        "user.view_info(?)",
+        "[user].[view_info](?)",
         new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY)
     ),
     //could be many more as said in query doc
     SEARCH_GAMES_ESRB_RATING(
         AType.QUERY,
         "search games by ESRB rating", "se",
-        "games.search_esrb_rating(?)",
+        "[games].[search_esrb_rating](?)",
         new Parameter(PType.INT, "rating_id", "ESRB rating id", Requirement.SimpleReq.NONEMPTY)
     ),
     SEARCH_GAMES_HIGHEST_RATING(
         AType.QUERY,
         "search games by highest rating average", "sa",
-        "games.search_highest_average()"
+        "[games].[search_highest_average]"
         //would not take in any parameters
     ),
     VIEW_GAME_DETAILS(
         AType.QUERY,
         "view game details", "vd",
-        "games.view_game_details(?)",
+        "[games].[view_game_details](?)",
         new Parameter(PType.INT, "game_id", "game id", Requirement.SimpleReq.NONEMPTY)
     ),
     VIEW_FOLLOWED_GAME_SIMILARITIES(
         AType.QUERY,
         "users followed that own game", "vfg",
-        "user.followed_game_similarities(?,?)",
+        "[user].[followed_game_similarities](?,?)",
         new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY),
         new Parameter(PType.INT, "game_id", "game id", Requirement.SimpleReq.NONEMPTY)
     ),
     VIEW_BEST_SELLING(
         AType.QUERY,
         "view top selling", "vs",
-        "games.best_selling()"
+        "[games].[best_selling]"
         //would not take any parameters
     )
     
