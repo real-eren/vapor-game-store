@@ -8,7 +8,9 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-
+/**
+ * GUI main class.
+ */
 public class MainApp extends Application {
     private static Stage stage;
 
