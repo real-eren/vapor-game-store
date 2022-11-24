@@ -48,8 +48,8 @@ public enum Action {
         AType.UPDATE,
         "follow a user", "f",
         "[follows].[follow_user](?,?)",
-        new Parameter(PType.INT, "userA_id", "user id", Requirement.SimpleReq.NONEMPTY),
-        new Parameter(PType.INT, "userB_id", "users user id", Requirement.SimpleReq.NONEMPTY)
+        new Parameter(PType.INT, "userA_id", "user id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER),
+        new Parameter(PType.INT, "userB_id", "users user id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER)
     ),
     UNFOLLOW_USER(
         AType.UPDATE,
@@ -119,7 +119,7 @@ public enum Action {
     ;
 
     final AType type;
-    final String fullName;
+    final String description;
     final String shortName;
 
     /** The string with which to retrieve a StoredProcedure from a Connection */
@@ -135,15 +135,15 @@ public enum Action {
         QUERY
     }
 
-    Action(AType type, String fullName, String shortname, String storedProcedureString, List<Parameter> parameters) {
+    Action(AType type, String description, String shortname, String storedProcedureString, List<Parameter> parameters) {
         this.type = type;
-        this.fullName = fullName;
+        this.description = description;
         this.shortName = shortname;
         this.storedProcedureString = String.format("{call %s}", storedProcedureString);
         this.parameters = parameters;
     }
-    Action(AType type, String fullName, String shortname, String storedProcedureString, Parameter... parameters) {
-        this(type, fullName, shortname, storedProcedureString, List.of(parameters));
+    Action(AType type, String description, String shortname, String storedProcedureString, Parameter... parameters) {
+        this(type, description, shortname, storedProcedureString, List.of(parameters));
     }
 
 
@@ -171,7 +171,7 @@ public enum Action {
      *
      */
     private boolean accepts(String line) {
-        return shortName.equalsIgnoreCase(line) || fullName.equalsIgnoreCase(line);
+        return shortName.equalsIgnoreCase(line); 
     }
 
     /**

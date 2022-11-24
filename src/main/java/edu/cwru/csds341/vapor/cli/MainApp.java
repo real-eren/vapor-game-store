@@ -2,6 +2,7 @@ package edu.cwru.csds341.vapor.cli;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,18 +15,25 @@ public class MainApp {
         System.out.println("Welcome to the Vapor Game Store CLI");
     }
 
+    /** Provides user with list of queries that can be performed. */
     private static void printHelp() {
-        System.out.println("Available commands:");
+        System.out.println("Available commands: [Description : Command]");
         for (Action value : Action.VALUES) {
-            System.out.println(value.fullName + ": " + value.shortName);
+            System.out.println(value.description + " : " + value.shortName);
         }
-        // todo: further formatting?
     }
 
     /** Called after user decides to exit, before actually exiting application. */
-    private static void onQuit() {
-        // todo
-        // close database connection
+    private static void onQuit(Connection connection) {
+        if (connection == null)
+            return;
+        else {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -82,6 +90,7 @@ public class MainApp {
             while (true) {
                 System.out.print("Enter a command: ");
                 var line = scanner.nextLine();
+                ResultSet result = null;
 
                 if (line.equalsIgnoreCase("help")) {
                     printHelp();
@@ -94,7 +103,7 @@ public class MainApp {
                     var confirmation = scanner.nextLine();
                     // todo: generalize this to y/n
                     if (confirmation.equalsIgnoreCase("yes")) {
-                        onQuit();
+                        onQuit(connection);
                         return;
                     } else continue;
                 }
@@ -106,10 +115,20 @@ public class MainApp {
                 if (action == null) System.out.println("Invalid action, try again");
                 else {
                     CallableStatement cs = prepareStatement(scanner, connection, action);
-                    // todo, distinguish query actions from update actions
-                    //  handle separately?
-                    cs.executeQuery();
-                    cs.executeUpdate();
+
+                    //The are Actions that perform a query on the databse
+                    if (action.type.equals(Action.AType.UPDATE))
+                        cs.executeUpdate();
+                        //give user feedback about update
+
+                    else if (action.type.equals(Action.AType.QUERY)) {
+                        result = cs.executeQuery();
+
+                        //print output of result to user
+
+                    }
+
+                    cs.close();
                 }
 
                 // repeat
