@@ -7,9 +7,7 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class MainApp {
 
@@ -36,31 +34,28 @@ public class MainApp {
 
     }
 
-
     /**
-     * Creates the CallableStatement associated with the Action,
-     * and gets input from the user for each field through std-in.
-     * @param scanner  where to get user input from
-     * @param connection  where to access the database from
-     * @param action  which command is being processed.
-     * @return  CallableStatement that is ready to execute
-     * @throws SQLException  may occur while creating the Statement or setting parameters
+     * For each parameter, prompts the user for input.
+     * Allows the user to cancel, in which case an Empty Optional is returned.
+     * Returns the mapping between Parameters and user inputs.
+     * @param scanner  where to take user input from
+     * @param parameters  the parameters to query the user for
+     * @return  Empty if user cancelled, or Map of parameters to the user's response
      */
-    private static CallableStatement prepareStatement(Scanner scanner, Connection connection, Action action) throws SQLException {
-        // todo: implement cancelling
-        //   look for "!cancel"
-        // TODO: think of way to provide "quit" keyword without
-        //  preventing that string from being used as an actual param
-
-        // has list of parameters it needs from user
-        Map<Action.Parameter, String> userInputs = new HashMap<>(action.parameters.size());
-        for (Action.Parameter parameter : action.parameters) {
+    private static Optional<Map<Action.Parameter, String>> promptUserForParameters(Scanner scanner, List<Action.Parameter> parameters) {
+        Map<Action.Parameter, String> userInputs = new HashMap<>(parameters.size());
+        for (Action.Parameter parameter : parameters) {
             boolean valid = false;
             String input = null;
             while (! valid) {
                 System.out.print("Enter value for '" + parameter.displayName + "': ");
                 input = scanner.nextLine();
                 valid = true;
+                if (input.equalsIgnoreCase("cancel")) {
+                    System.out.println("Cancel the command (Y) or treat as input [default]?: ");
+                    if (scanner.nextLine().equalsIgnoreCase("y")) return Optional.empty();
+                }
+
                 // validate
                 for (Requirement requirement : parameter.requirements) {
                     if (!requirement.accepts(input)) {
@@ -70,19 +65,13 @@ public class MainApp {
                     }
                 }
             }
-            // what if valid==false
-            // handle: repeat this prompt, or cancel action?
-            assert input != null : "input should have been set before exiting loop";
-
             userInputs.put(parameter, input);
         }
-
-        var cs = action.getCallableStatement(connection);
-        action.apply(cs, userInputs);
-        return cs;
+        return Optional.of(userInputs);
     }
 
-    public static void main(String[] args) throws SQLException {
+
+    public static void main(String[] args) {
         try (Scanner scanner = new Scanner(System.in);
              Connection connection = null; // todo: create connection
         ) {
@@ -110,19 +99,25 @@ public class MainApp {
                         .findAny()
                         .orElse(null);
 
-                if (action == null) System.out.println("Invalid action, try again");
-                else {
-                    try (CallableStatement cs = prepareStatement(scanner, connection, action)) {
-                        if (action.type.equals(Action.AType.UPDATE))
-                            cs.executeUpdate();
-                            // TODO: give user feedback about update
+                if (action == null) {
+                    System.out.println("Invalid action, try again");
+                    continue;
+                }
 
-                        else if (action.type.equals(Action.AType.QUERY)) {
-                            ResultSet result = cs.executeQuery();
+                var userInputs = promptUserForParameters(scanner, action.parameters);
+                if (userInputs.isEmpty()) continue;
 
-                            // TODO: print output of result to user
-                            // print column names, then values?
-                        }
+                try (CallableStatement cs = action.getCallableStatement(connection)) {
+                    Action.apply(cs, userInputs.get());
+                    if (action.type.equals(Action.AType.UPDATE))
+                        cs.executeUpdate();
+                        // TODO: give user feedback about update
+
+                    else if (action.type.equals(Action.AType.QUERY)) {
+                        ResultSet result = cs.executeQuery();
+
+                        // TODO: print output of result to user
+                        //  print column names, then values?
                     }
                 }
 

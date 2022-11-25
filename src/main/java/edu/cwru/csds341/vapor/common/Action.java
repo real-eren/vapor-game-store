@@ -149,11 +149,11 @@ public enum Action {
     /**
      * Set parameters. Assumes map has all necessary fields and that they are all valid.
      */
-    public void apply(CallableStatement cs, Map<Parameter, String> args) throws SQLException {
+    public static void apply(CallableStatement cs, Map<Parameter, String> args) throws SQLException {
         for (var entry : args.entrySet()) applyParam(cs, entry.getKey(), entry.getValue());
     }
 
-    private void applyParam(CallableStatement cs, Parameter parameter, String val) throws SQLException {
+    private static void applyParam(CallableStatement cs, Parameter parameter, String val) throws SQLException {
         switch (parameter.type) {
             case INT:
                 cs.setInt(parameter.argName, Integer.parseInt(val));
