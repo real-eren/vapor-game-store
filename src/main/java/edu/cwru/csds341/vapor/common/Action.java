@@ -1,6 +1,6 @@
-package edu.cwru.csds341.vapor.cli;
+package edu.cwru.csds341.vapor.common;
 
-import edu.cwru.csds341.vapor.cli.Action.Parameter.PType;
+import edu.cwru.csds341.vapor.common.Action.Parameter.PType;
 
 import java.sql.*;
 import java.util.List;
@@ -15,15 +15,7 @@ public enum Action {
     //todo
     //make callable statements in database, correct storedProcedure strings for each action
 
-    /*
-    EXAMPLE_ADD_GAME(
-            AType.UPDATE,
-            "add game", "ag",
-            "[schemaName].[storedProcedureName](?,?)",
-            new Parameter(PType.STRING, "game_name", "game name", Requirement.SimpleReq.NONEMPTY),
-            new Parameter(PType.INT, "rating", "rating", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER)
-            ),
-    */
+
     CREATE_ACCOUNT(
         AType.UPDATE,
         "create account", "c",
@@ -118,17 +110,17 @@ public enum Action {
     
     ;
 
-    final AType type;
-    final String description;
-    final String shortName;
+    public final AType type;
+    public final String description;
+    public final String shortName;
 
     /** The string with which to retrieve a StoredProcedure from a Connection */
     final String storedProcedureString;
 
-    final List<Parameter> parameters;
+    public final List<Parameter> parameters;
 
     /** Correlates to SQL statements */
-    enum AType {
+    public enum AType {
         /** Insert, Update, Delete */
         UPDATE,
         /** Select */
@@ -150,32 +142,12 @@ public enum Action {
     public static final List<Action> VALUES = List.of(Action.values());
 
 
-    /**
-     * looks up action that matches command
-     * @return  Action if command matches one, or null
-     */
-    public static Action get(String command) {
-        for (Action action : VALUES) {
-            if (action.accepts(command)) {
-                return action;
-            }
-        }
-        return null;
-    }
-
     public CallableStatement getCallableStatement(Connection connection) throws SQLException {
         return connection.prepareCall(storedProcedureString);
     }
 
     /**
-     *
-     */
-    private boolean accepts(String line) {
-        return shortName.equalsIgnoreCase(line); 
-    }
-
-    /**
-     * Set parameters. Assumes map has all necessary fields
+     * Set parameters. Assumes map has all necessary fields and that they are all valid.
      */
     public void apply(CallableStatement cs, Map<Parameter, String> args) throws SQLException {
         for (var entry : args.entrySet()) applyParam(cs, entry.getKey(), entry.getValue());
@@ -195,29 +167,24 @@ public enum Action {
         }
     }
 
-    @Override
-    public String toString() {
-        // todo: nice format, for display
-        return super.toString();
-    }
 
     /** An argument the user must provide to the Action. */
-    static class Parameter {
+    public static class Parameter {
 
         /** What SQL type this Parameter maps to */
-        final PType type;
+        public final PType type;
 
         /** The name used in the SQL stored Procedure */
-        final String argName;
+        public final String argName;
 
         /** The name shown to the user */
-        final String displayName;
+        public final String displayName;
 
         /** Predicates to enforce on the user-given string */
-        final List<Requirement> requirements;
+        public final List<Requirement> requirements;
 
         /** Maps to SQL data types */
-        enum PType { INT, STRING, DATE }
+        public enum PType { INT, STRING, DATE }
 
         public Parameter(PType type, String argName, String displayName, List<Requirement> requirements) {
             this.type = type;

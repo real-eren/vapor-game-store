@@ -1,4 +1,4 @@
-package edu.cwru.csds341.vapor.cli;
+package edu.cwru.csds341.vapor.common;
 
 import java.util.function.Predicate;
 import java.util.regex.Pattern;

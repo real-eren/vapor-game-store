@@ -1,5 +1,8 @@
 package edu.cwru.csds341.vapor.cli;
 
+import edu.cwru.csds341.vapor.common.Action;
+import edu.cwru.csds341.vapor.common.Requirement;
+
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -36,13 +39,15 @@ public class MainApp {
         }
     }
 
+
     /**
-     *
+     * Creates the CallableStatement associated with the Action,
+     * and gets input from the user for each field through std-in.
      * @param scanner  where to get user input from
      * @param connection  where to access the database from
      * @param action  which command is being processed.
      * @return  CallableStatement that is ready to execute
-     * @throws SQLException
+     * @throws SQLException  may occur while creating the Statement or setting parameters
      */
     private static CallableStatement prepareStatement(Scanner scanner, Connection connection, Action action) throws SQLException {
         // todo: implement cancelling
@@ -108,27 +113,24 @@ public class MainApp {
                     } else continue;
                 }
 
-                // null if invalid Action
-                var action = Action.get(line);
+                var action = Action.VALUES.stream()
+                        .filter(a -> a.shortName.equalsIgnoreCase(line))
+                        .findAny()
+                        .orElse(null);
 
-                // valid action chosen
                 if (action == null) System.out.println("Invalid action, try again");
                 else {
-                    CallableStatement cs = prepareStatement(scanner, connection, action);
+                    try (CallableStatement cs = prepareStatement(scanner, connection, action)) {
+                        if (action.type.equals(Action.AType.UPDATE))
+                            cs.executeUpdate();
+                            // TODO: give user feedback about update
 
-                    //The are Actions that perform a query on the databse
-                    if (action.type.equals(Action.AType.UPDATE))
-                        cs.executeUpdate();
-                        //give user feedback about update
+                        else if (action.type.equals(Action.AType.QUERY)) {
+                            result = cs.executeQuery();
 
-                    else if (action.type.equals(Action.AType.QUERY)) {
-                        result = cs.executeQuery();
-
-                        //print output of result to user
-
+                            // TODO: print output of result to user
+                        }
                     }
-
-                    cs.close();
                 }
 
                 // repeat
