@@ -16,13 +16,18 @@ public class MainApp {
 
     private static void greetUser() {
         System.out.println("Welcome to the Vapor Game Store CLI");
+        System.out.println("Enter 'help' for a list of commands, 'exit' to quit.");
     }
 
-    /** Provides user with list of queries that can be performed. */
+    /** Displays list of commands to user. */
     private static void printHelp() {
-        System.out.println("Available commands: [Description : Command]");
+        System.out.println("Available commands: [Command : Description]");
+        final String format = "   %-7s|  %s\n";
+        System.out.printf(format, "help", "print list of commands");
+        System.out.printf(format, "exit", "quit the application");
+        System.out.printf(format, "cancel", "while filling out fields, cancel the command");
         for (Action value : Action.VALUES) {
-            System.out.println(value.description + " : " + value.shortName);
+            System.out.printf(format, value.shortName, value.description);
         }
     }
 
