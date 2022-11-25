@@ -27,16 +27,8 @@ public class MainApp {
     }
 
     /** Called after user decides to exit, before actually exiting application. */
-    private static void onQuit(Connection connection) {
-        if (connection == null)
-            return;
-        else {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+    private static void onQuit() {
+
     }
 
 
@@ -95,7 +87,6 @@ public class MainApp {
             while (true) {
                 System.out.print("Enter a command: ");
                 var line = scanner.nextLine();
-                ResultSet result = null;
 
                 if (line.equalsIgnoreCase("help")) {
                     printHelp();
@@ -103,14 +94,10 @@ public class MainApp {
                 }
 
                 if (line.equalsIgnoreCase("exit")) {
-                    // prompt y/n
-                    System.out.print("Confirm exit (Y / N): ");
+                    System.out.print("Confirm exit (yes): ");
                     var confirmation = scanner.nextLine();
-                    // todo: generalize this to y/n
-                    if (confirmation.equalsIgnoreCase("yes")) {
-                        onQuit(connection);
-                        return;
-                    } else continue;
+                    if (confirmation.equalsIgnoreCase("yes")) break;
+                    else continue;
                 }
 
                 var action = Action.VALUES.stream()
@@ -126,15 +113,21 @@ public class MainApp {
                             // TODO: give user feedback about update
 
                         else if (action.type.equals(Action.AType.QUERY)) {
-                            result = cs.executeQuery();
+                            ResultSet result = cs.executeQuery();
 
                             // TODO: print output of result to user
+                            // print column names, then values?
                         }
                     }
                 }
 
                 // repeat
             }
+        } catch (SQLException sqlE) {
+            System.out.println("Error occurred, exiting.");
+            System.out.println(sqlE.getMessage());
+        } finally {
+            onQuit();
         }
     }
 }
