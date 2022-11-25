@@ -29,11 +29,6 @@ public class MainApp {
         }
     }
 
-    /** Called after user decides to exit, before actually exiting application. */
-    private static void onQuit() {
-
-    }
-
     /**
      * For each parameter, prompts the user for input.
      * Allows the user to cancel, in which case an Empty Optional is returned.
@@ -127,7 +122,6 @@ public class MainApp {
             System.out.println("Error occurred, exiting.");
             System.out.println(sqlE.getMessage());
         } finally {
-            onQuit();
         }
     }
 }
