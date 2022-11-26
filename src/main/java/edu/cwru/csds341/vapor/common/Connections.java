@@ -9,25 +9,55 @@ import java.sql.SQLException;
 import java.util.*;
 
 /**
- * Collection of utilities for creating DB connections
+ * Collection of utilities for creating DB {@link Connection}s
  */
 public final class Connections {
     /** Instances of this class are useless */
     private Connections() {}
 
-    public static final class Params {
-        public final String address, db, username, password, timeout;
+    private static final String
+            ADDRESS = "address",
+            DB = "db",
+            USERNAME = "username",
+            PASSWORD = "password",
+            /** Default "10" */
+            TIMEOUT = "timeout",
+            /** see {@link #DEBUG_OFF}, {@link #DEBUG_IGNORE}. Default {@link #DEBUG_OFF} */
+            DEBUG = "debug";
 
-        public Params(String address, String db, String username, String password, String timeout) {
-            this.address = address;
-            this.db = db;
-            this.username = username;
-            this.password = password;
-            this.timeout = timeout;
+    /**  */
+    private static final String
+            DEBUG_OFF = "0",
+            DEBUG_IGNORE = "1";
+    private static final Set<String> LEGAL_CONFIG_FIELDS = Set.of(ADDRESS, DB, USERNAME, PASSWORD, TIMEOUT, DEBUG);
+    private static final Set<String> REQUIRED_CONFIG_FIELDS = Set.of(ADDRESS, DB, USERNAME, PASSWORD);
+
+    /** 
+     * Returns a Connection based on the contents of the given file.
+     * The file should consist solely of lines of the form 'key=value'.
+     * @throws IOException  if the file cannot be opened or read from.
+     * @throws IllegalArgumentException  if the config file contains an illegal entry
+     * @throws SQLException  if a database access error occurs
+     * @throws java.sql.SQLTimeoutException  if the time limit for connecting expires
+     */
+    public static Connection fromFile(Path file) throws IOException, SQLException {
+        var lines = Files.readAllLines(file);
+        Map<String, String> args = new HashMap<>(REQUIRED_CONFIG_FIELDS.size());
+        for (var line : lines) {
+            if (line.isBlank() || line.startsWith("#")) continue;
+            var tokens = line.split("=", 2);
+            if (tokens.length < 2) throw new DBIllegalConfigException(file, "has line with improper formatting: " + line);
+            var key = tokens[0].toLowerCase();
+            var val = tokens[1];
+            if (args.containsKey(key)) throw new DBIllegalConfigException(file, "contains duplicate entries for:" + key);
+            if (! LEGAL_CONFIG_FIELDS.contains(key)) throw new DBIllegalConfigException(file, "contains unrecognized entry for: " + key);
+            if (key.equals(DEBUG) && val.equals(DEBUG_IGNORE)) return null;
+            args.put(key, val);
         }
-    }
+        for (var key : REQUIRED_CONFIG_FIELDS)
+            if (! args.containsKey(key)) throw new DBIllegalConfigException(file, "is missing an entry for: " + key);
 
-    public static Connection makConnection(Params params) throws SQLException {
+        // all required fields present by this point
         String connectionUrl = String.format(
             "jdbc:sqlserver://%s;"
                 + "database=%s;"
@@ -36,50 +66,20 @@ public final class Connections {
                 + "encrypt=true;"
                 + "trustServerCertificate=true;"
                 + "loginTimeout=%s;",
-                params.address,
-                params.db,
-                params.username,
-                params.password,
-                params.timeout
+                args.get(ADDRESS),
+                args.get(DB),
+                args.get(USERNAME),
+                args.get(PASSWORD),
+                args.getOrDefault(TIMEOUT, "10")
         );
 
         return DriverManager.getConnection(connectionUrl);
     }
 
-    private static final Set<String> LEGAL_CONFIG_FIELDS = Set.of("address", "db", "username", "password", "timeout");
-    private static final Set<String> REQUIRED_CONFIG_FIELDS = Set.of("address", "db", "username", "password");
-
-    /** 
-     * Returns a Params instance based on the contents of the given file.
-     * The file should consist solely of lines of the form 'key=value'.
-     * @throws IOException  if the file cannot be opened or read from.
-     * @throws IllegalArgumentException  if the config file contains an illegal entry
-     */
-    public static Params loadFromFile(Path file) throws IOException {
-        var lines = Files.readAllLines(file);
-        Map<String, String> args = new HashMap<>(5);
-        for (var line : lines) {
-            if (line.isBlank()) continue;
-            if (line.startsWith("#")) continue;
-            System.out.println(line);
-            var tokens = line.split("=", 2);
-            var key = tokens[0];
-            var val = tokens[1];
-            if (args.containsKey(key)) throw new IllegalArgumentException("DB credentials file contains duplicate entries for: " + key);
-            if (! LEGAL_CONFIG_FIELDS.contains(key)) throw new IllegalArgumentException("DB credentials file contains unrecognized entry for: " + key);
-            args.put(key, val);
+    /** Issue with the DB credentials file */
+    public static class DBIllegalConfigException extends RuntimeException {
+        public DBIllegalConfigException(Path file, String problem) {
+            super(String.format("DB credentials file '%s': %s", file, problem));
         }
-        for (var key : REQUIRED_CONFIG_FIELDS)
-            if (! args.containsKey(key)) throw new IllegalArgumentException("DB credentials file is missing an entry for: " + key);
-
-        // all required fields present by this point
-        return new Params(
-            args.get("address"),
-            args.get("db"),
-            args.get("username"),
-            args.get("password"),
-            args.getOrDefault("timeout", "30")
-            );
     }
-
 }

@@ -3,7 +3,6 @@ package edu.cwru.csds341.vapor.common;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -12,9 +11,8 @@ import java.sql.Statement;
  */
 public class DBPlaceholder {
     public static void main(String[] args) throws IOException {
-        var params = Connections.loadFromFile(Path.of("./example.ini"));
     
-        try (Connection connection = Connections.makConnection(params);
+        try (Connection connection = Connections.fromFile(Path.of("./example.ini"));
              Statement statement = connection.createStatement();) {
 
         }
