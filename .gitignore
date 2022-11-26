@@ -1,3 +1,17 @@
+
+### Credentials ###
+# credentials files must be distributed outside of VCS
+credentials/*
+**.credentials
+# these two don't contain any secrets
+!credentials/example.credentials
+!credentials/null_debug.credentials
+
+### IDEA ###
+.idea/
+
+## Start of generated gitignore
+
 # Created by https://www.toptal.com/developers/gitignore/api/java,maven,visualstudiocode,windows
 # Edit at https://www.toptal.com/developers/gitignore?templates=java,maven,visualstudiocode,windows
 
@@ -92,6 +106,3 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/java,maven,visualstudiocode,windows
-
-### IDEA ###
-.idea/

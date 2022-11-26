@@ -15,6 +15,8 @@ public final class Connections {
     /** Instances of this class are useless */
     private Connections() {}
 
+    public static final Path CREDENTIALS_DIR = Path.of(".", "credentials");
+
     private static final String
             ADDRESS = "address",
             DB = "db",

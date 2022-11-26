@@ -1,8 +1,12 @@
 package edu.cwru.csds341.vapor.cli;
 
 import edu.cwru.csds341.vapor.common.Action;
+import edu.cwru.csds341.vapor.common.Connections;
 import edu.cwru.csds341.vapor.common.Requirement;
 
+import java.io.IOException;
+import java.nio.file.AccessDeniedException;
+import java.nio.file.NoSuchFileException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -68,7 +72,7 @@ public class MainApp {
 
     public static void main(String[] args) {
         try (Scanner scanner = new Scanner(System.in);
-             Connection connection = null; // todo: create connection
+             Connection connection = Connections.fromFile(Connections.CREDENTIALS_DIR.resolve("cliol.credentials"))
         ) {
             greetUser();
 
@@ -119,8 +123,15 @@ public class MainApp {
                 // repeat
             }
         } catch (SQLException sqlE) {
-            System.out.println("Error occurred, exiting.");
+            System.out.println("Database error occurred, exiting.");
             System.out.println(sqlE.getMessage());
+        } catch (NoSuchFileException e) {
+            System.out.println("Credentials file '" + e.getFile() + "' does not exist");
+        } catch (AccessDeniedException e) {
+            System.out.println("Could not obtain read permissions for " + e.getFile());
+        } catch (IOException e) {
+            System.out.println("Failed while trying to open credentials file.");
+            System.out.println(e);
         } finally {
         }
     }
