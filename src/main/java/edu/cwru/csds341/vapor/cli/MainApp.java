@@ -7,6 +7,7 @@ import edu.cwru.csds341.vapor.common.Requirement;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -71,8 +72,11 @@ public class MainApp {
 
 
     public static void main(String[] args) {
+        Path credentialsFile = (args.length==0)
+                ? Connections.CREDENTIALS_DIR.resolve("cli.credentials")
+                : Path.of(args[0]);
         try (Scanner scanner = new Scanner(System.in);
-             Connection connection = Connections.fromFile(Connections.CREDENTIALS_DIR.resolve("cliol.credentials"))
+             Connection connection = Connections.fromFile(credentialsFile)
         ) {
             greetUser();
 
