@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Something that can be done in the application, such as "add a game", "create an account".
- * todo: fill in javadocs
+ * DB-involving action that can be done in the application, such as "add a game", "create an account".
+ * <li>Has a list of {@link Parameter}s.</li>
+ * <li>Associated with a stored procedure</li>
+ * Designed to facilitate automating the menu creation.
  */
 public enum Action {
 
@@ -110,13 +112,17 @@ public enum Action {
     
     ;
 
+    /** What type of SQL statement this Action performs */
     public final AType type;
+    /** Short blurb about what this Action does */
     public final String description;
+    /** The name displayed to the user on the CLI. A few letters. */
     public final String shortName;
 
     /** The string with which to retrieve a StoredProcedure from a Connection */
     final String storedProcedureString;
 
+    /** The parameters that must be provided to this Action's {@link CallableStatement} */
     public final List<Parameter> parameters;
 
     /** Correlates to SQL statements */
@@ -138,37 +144,31 @@ public enum Action {
         this(type, description, shortname, storedProcedureString, List.of(parameters));
     }
 
-
+    /** Read-only list of all Actions. Prefer this to Enum::values because that creates a copy everytime */
     public static final List<Action> VALUES = List.of(Action.values());
 
-
+    /** Use the given connection to prepare a CallableStatement of the storedProcedure associated with this Action */
     public CallableStatement getCallableStatement(Connection connection) throws SQLException {
         return connection.prepareCall(storedProcedureString);
     }
 
     /**
-     * Set parameters. Assumes map has all necessary fields and that they are all valid.
+     * Set parameters from the map. Assumes map has all necessary fields and that they are all valid.
+     * @param cs  the statement to set parameters on
+     * @param args  Values are assumed to have been validated w.r.t. the Parameter,
+     *             and Parameters are assumed to be valid for the given statement
+     * @throws SQLException  if the statement doesn't accept one of the Parameters;
+     *                      if a database access error occurs
+     *                      or this method is passed a closed CallableStatement
      */
-    public static void apply(CallableStatement cs, Map<Parameter, String> args) throws SQLException {
-        for (var entry : args.entrySet()) applyParam(cs, entry.getKey(), entry.getValue());
-    }
-
-    private static void applyParam(CallableStatement cs, Parameter parameter, String val) throws SQLException {
-        switch (parameter.type) {
-            case INT:
-                cs.setInt(parameter.argName, Integer.parseInt(val));
-                break;
-            case STRING:
-                cs.setString(parameter.argName, val);
-                break;
-            case DATE:
-                cs.setDate(parameter.argName, Date.valueOf(val));
-                break;
-        }
+    public static void applyAll(CallableStatement cs, Map<Parameter, String> args) throws SQLException {
+        for (var entry : args.entrySet()) entry.getKey().apply(cs, entry.getValue());
     }
 
 
-    /** An argument the user must provide to the Action. */
+    /**
+     * An argument the user must provide to the Action.
+     */
     public static class Parameter {
 
         /** What SQL type this Parameter maps to */
@@ -184,7 +184,39 @@ public enum Action {
         public final List<Requirement> requirements;
 
         /** Maps to SQL data types */
-        public enum PType { INT, STRING, DATE }
+        public enum PType {
+            INT {
+                @Override
+                void apply(CallableStatement statement, String argName, String val) throws SQLException {
+                    statement.setInt(argName, Integer.parseInt(val));
+                }
+            },
+            STRING {
+                @Override
+                void apply(CallableStatement statement, String argName, String val) throws SQLException {
+                    statement.setString(argName, val);
+                }
+            },
+            DATE {
+                @Override
+                void apply(CallableStatement statement, String argName, String val) throws SQLException {
+                    statement.setDate(argName, Date.valueOf(val));
+                }
+            }
+            ;
+
+            /**
+             * Set a parameter on a statement, interpreting the value according to this type.
+             * External code should use {@link Parameter#apply(CallableStatement, String)}
+             * @param statement  the statement to set a parameter for
+             * @param argName  the name of the parameter to set
+             * @param val  the value to enter. Assumed to have been validated
+             * @throws SQLException  if parameterName does not correspond to a named parameter;
+             *                      if a database access error occurs
+             *                      or this method is called on a closed CallableStatement
+             */
+            abstract void apply(CallableStatement statement, String argName, String val) throws SQLException;
+        }
 
         public Parameter(PType type, String argName, String displayName, List<Requirement> requirements) {
             this.type = type;
@@ -195,6 +227,18 @@ public enum Action {
 
         public Parameter(PType type, String argName, String displayName, Requirement... requirements) {
             this(type, argName, displayName, List.of(requirements));
+        }
+
+        /**
+         * Use the given string as the value for this parameter of the given statement
+         * @param statement  the statement to set parameters for
+         * @param val  the value to use. Assumed to be a valid value for this Parameter
+         * @throws SQLException  if parameterName does not correspond to a named parameter;
+         *                      if a database access error occurs
+         *                      or this method is called on a closed CallableStatement
+         */
+        public void apply(CallableStatement statement, String val) throws SQLException {
+            type.apply(statement, argName, val);
         }
     }
 

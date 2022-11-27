@@ -111,7 +111,7 @@ public class MainApp {
                 if (userInputs.isEmpty()) continue;
 
                 try (CallableStatement cs = action.getCallableStatement(connection)) {
-                    Action.apply(cs, userInputs.get());
+                    Action.applyAll(cs, userInputs.get());
                     if (action.type.equals(Action.AType.UPDATE))
                         cs.executeUpdate();
                         // TODO: give user feedback about update
