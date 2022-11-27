@@ -112,11 +112,11 @@ public class MainApp {
 
                 try (CallableStatement cs = action.getCallableStatement(connection)) {
                     Action.applyAll(cs, userInputs.get());
-                    if (action.type.equals(Action.AType.UPDATE))
+                    if (action.type == Action.AType.UPDATE)
                         cs.executeUpdate();
                         // TODO: give user feedback about update
 
-                    else if (action.type.equals(Action.AType.QUERY)) {
+                    else if (action.type == Action.AType.QUERY) {
                         ResultSet result = cs.executeQuery();
 
                         // TODO: print output of result to user
@@ -136,6 +136,8 @@ public class MainApp {
         } catch (IOException e) {
             System.out.println("Failed while trying to open credentials file.");
             System.out.println(e);
+        } catch (Connections.DBIllegalConfigException e) {
+            System.out.println(e.getMessage());
         } finally {
         }
     }
