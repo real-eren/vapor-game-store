@@ -118,9 +118,25 @@ public class MainApp {
 
                     else if (action.type == Action.AType.QUERY) {
                         ResultSet result = cs.executeQuery();
+                        System.out.printf("Results for: %s", action.description);
+                        // format
+                        // first show column names?
+                        var metadata = result.getMetaData();
+                        List<String> labels = new ArrayList<>();
+                        int columnCount = result.getMetaData().getColumnCount();
+                        for (int i = 0; i < columnCount; i++) {
+                            labels.add(metadata.getColumnLabel(i));
+                        }
+                        // todo print labels better
+                        System.out.printf(labels.toString());
+                        // TODO: format
+                        while (result.next()) {
+                            for (int i = 0; i < columnCount; i++) {
+                                System.out.printf("%s", result.getString(i));
+                            }
+                            System.out.println();
+                        }
 
-                        // TODO: print output of result to user
-                        //  print column names, then values?
                     }
                 }
 
