@@ -71,6 +71,57 @@ public class MainApp {
     }
 
 
+    /**
+     * Call after validating the Action and userInputs.
+     * Retrieves the callable statement, prepares it, executes,
+     * and displays results according to the type of statement
+     * @param connection  the DB connection
+     * @param action  the Action to perform
+     * @param userInputs  the parameters
+     * @throws SQLException  while getting the CallableStatement, setting the parameters or executing it
+     */
+    private static void executeAction(Connection connection, Action action, Map<Action.Parameter, String> userInputs) throws SQLException {
+        try (CallableStatement cs = action.getCallableStatement(connection)) {
+            Action.applyAll(cs, userInputs);
+            switch (action.type) {
+                case INSERT_ID:
+                    // TODO: execute, print generated ID
+                    break;
+                case UPDATE:
+                case INSERT:
+                case DELETE:
+                    // nothing specific to report
+                    cs.executeUpdate();
+                    break;
+                case QUERY:
+                    var resultSet = cs.executeQuery();
+                    performQuery(action, resultSet);
+                    break;
+            }
+        }
+    }
+
+    private static void performQuery(Action action, ResultSet resultSet) throws SQLException {
+        System.out.printf("Results for: %s", action.description);
+        // format
+        // first show column names?
+        var metadata = resultSet.getMetaData();
+        List<String> labels = new ArrayList<>();
+        int columnCount = resultSet.getMetaData().getColumnCount();
+        for (int i = 0; i < columnCount; i++) {
+            labels.add(metadata.getColumnLabel(i));
+        }
+        // todo print labels better
+        System.out.printf(labels.toString());
+        // TODO: format
+        while (resultSet.next()) {
+            for (int i = 0; i < columnCount; i++) {
+                System.out.printf("%s", resultSet.getString(i));
+            }
+            System.out.println();
+        }
+    }
+
     public static void main(String[] args) {
         Path credentialsFile = (args.length==0)
                 ? Connections.CREDENTIALS_DIR.resolve("cli.credentials")
@@ -110,35 +161,7 @@ public class MainApp {
                 var userInputs = promptUserForParameters(scanner, action.parameters);
                 if (userInputs.isEmpty()) continue;
 
-                try (CallableStatement cs = action.getCallableStatement(connection)) {
-                    Action.applyAll(cs, userInputs.get());
-                    if (action.type == Action.AType.UPDATE)
-                        cs.executeUpdate();
-                        // TODO: give user feedback about update
-
-                    else if (action.type == Action.AType.QUERY) {
-                        ResultSet result = cs.executeQuery();
-                        System.out.printf("Results for: %s", action.description);
-                        // format
-                        // first show column names?
-                        var metadata = result.getMetaData();
-                        List<String> labels = new ArrayList<>();
-                        int columnCount = result.getMetaData().getColumnCount();
-                        for (int i = 0; i < columnCount; i++) {
-                            labels.add(metadata.getColumnLabel(i));
-                        }
-                        // todo print labels better
-                        System.out.printf(labels.toString());
-                        // TODO: format
-                        while (result.next()) {
-                            for (int i = 0; i < columnCount; i++) {
-                                System.out.printf("%s", result.getString(i));
-                            }
-                            System.out.println();
-                        }
-
-                    }
-                }
+                executeAction(connection, action, userInputs.get());
 
                 // repeat
             }

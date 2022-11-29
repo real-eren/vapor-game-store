@@ -19,13 +19,13 @@ public enum Action {
 
 
     CREATE_ACCOUNT(
-        AType.UPDATE,
+        AType.INSERT_ID,
         "create account", "c",
         "[user].[create_account](?)",
         new Parameter(PType.STRING, "username", "username", Requirement.SimpleReq.NONEMPTY)
     ),
     MAKE_COMMENT(
-        AType.UPDATE,
+        AType.INSERT,
         "add new comment", "mc",
         "[user_profile_comment].[make_comment(?,?,?)]",
         new Parameter(PType.INT, "profile_id", "user id", Requirement.SimpleReq.NONEMPTY),
@@ -39,21 +39,21 @@ public enum Action {
             new Parameter(PType.STRING, "user1", "user id", Requirement.SimpleReq.NONEMPTY)
             ),
     FOLLOW_USER(
-        AType.UPDATE,
+        AType.INSERT,
         "follow a user", "f",
         "[follows].[follow_user](?,?)",
         new Parameter(PType.INT, "userA_id", "user id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER),
         new Parameter(PType.INT, "userB_id", "users user id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER)
     ),
     UNFOLLOW_USER(
-        AType.UPDATE,
+        AType.DELETE,
         "unfollow a user", "u",
         "[follows].[unfollow](?,?)",
         new Parameter(PType.INT, "userA_id", "user id", Requirement.SimpleReq.NONEMPTY),
         new Parameter(PType.INT, "userB_id", "users user id", Requirement.SimpleReq.NONEMPTY)
     ),
     GRANT_GAME(
-        AType.UPDATE,
+        AType.INSERT,
         "grant possesion of a game", "gg",
         "g[ame_ownership].[grant_game_ownsership](?,?)",
         new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY),
@@ -127,8 +127,14 @@ public enum Action {
 
     /** Correlates to SQL statements */
     public enum AType {
-        /** Insert, Update, Delete */
+        /** Update existing entry */
         UPDATE,
+        /** Add new row, with identity column */
+        INSERT_ID,
+        /** Add new row, without identity column*/
+        INSERT,
+        /** Remove existing row */
+        DELETE,
         /** Select */
         QUERY
     }
