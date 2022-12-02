@@ -14,103 +14,147 @@ import java.util.Map;
  */
 public enum Action {
 
-    //todo
-    //make callable statements in database, correct storedProcedure strings for each action
-
-
     CREATE_ACCOUNT(
         AType.INSERT_ID,
         "create account", "c",
-        "[user].[create_account](?)",
-        new Parameter(PType.STRING, "username", "username", Requirement.SimpleReq.NONEMPTY)
-    ),
-    MAKE_COMMENT(
-        AType.INSERT,
-        "add new comment", "mc",
-        "[user_profile_comment].[make_comment(?,?,?)]",
-        new Parameter(PType.INT, "profile_id", "user id", Requirement.SimpleReq.NONEMPTY),
-        new Parameter(PType.STRING, "commenter_id", "users user id", Requirement.SimpleReq.NONEMPTY),
-        new Parameter(PType.STRING, "message", "message", Requirement.SimpleReq.NONEMPTY)
-    ),
-    VIEW_FOLLOWERS(
-            AType.QUERY,
-            "view friends", "vf",
-            "[followers].[viewFollowers](?,?)",
-            new Parameter(PType.STRING, "user1", "user id", Requirement.SimpleReq.NONEMPTY)
-            ),
-    FOLLOW_USER(
-        AType.INSERT,
-        "follow a user", "f",
-        "[follows].[follow_user](?,?)",
-        new Parameter(PType.INT, "userA_id", "user id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER),
-        new Parameter(PType.INT, "userB_id", "users user id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER)
-    ),
-    UNFOLLOW_USER(
-        AType.DELETE,
-        "unfollow a user", "u",
-        "[follows].[unfollow](?,?)",
-        new Parameter(PType.INT, "userA_id", "user id", Requirement.SimpleReq.NONEMPTY),
-        new Parameter(PType.INT, "userB_id", "users user id", Requirement.SimpleReq.NONEMPTY)
-    ),
-    GRANT_GAME(
-        AType.INSERT,
-        "grant possesion of a game", "gg",
-        "g[ame_ownership].[grant_game_ownsership](?,?)",
-        new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY),
-        new Parameter(PType.INT, "game_id", "game's id", Requirement.SimpleReq.NONEMPTY)
-    ),
-    VIEW_PROFILE(
-        AType.QUERY,
-        "view user profile", "vf",
-        "[user].[view_profile](?)",
+        "InsertUser(?,?,?)",
+        new Parameter(PType.STRING, "username", "username", Requirement.SimpleReq.NONEMPTY),
+        new Parameter(PType.DATE, "date", "date", Requirement.SimpleReq.NONEMPTY),
         new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY)
     ),
-    VIEW_GAMES_OWNED(
-        AType.QUERY,
-        "view games owned", "vg",
-        "[game_ownership].[view_games_owned](?)",
-        new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY) 
+    
+    UPDATE_USERNAME(
+        AType.UPDATE,
+        "update username of user", "uu",
+        "UpdateUsername(?,?)",
+        new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER),
+        new Parameter(PType.STRING, "new_name", "new username", Requirement.SimpleReq.NONEMPTY)
+    ),
+    DELETE_ACCOUNT(
+        AType.DELETE,
+        "delete user from database", "d",
+        "DeleteUser(?)",
+        new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER)
     ),
     VIEW_USER_INFO(
         AType.QUERY,
         "view username and join date", "vu",
-        "[user].[view_info](?)",
+        "GetUserInfo(?)",
         new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY)
     ),
-    //could be many more as said in query doc
+    MAKE_COMMENT(
+        AType.INSERT,
+        "add new comment", "mc",
+        "InsertComment(?,?,?,?)",
+        new Parameter(PType.INT, "commenter_id", "user id", Requirement.SimpleReq.NONEMPTY),
+        new Parameter(PType.STRING, "profile_id", "users user id", Requirement.SimpleReq.NONEMPTY),
+        new Parameter(PType.DATE, "date", "date", Requirement.SimpleReq.NONEMPTY),
+        new Parameter(PType.STRING, "message", "message", Requirement.SimpleReq.NONEMPTY)
+    ),
+    
+    VIEW_FOLLOWERS(
+            AType.QUERY,
+            "view followers", "vf",
+            "GetFollowersList(?)",
+            new Parameter(PType.STRING, "user_id", "user id", Requirement.SimpleReq.NONEMPTY)
+    ),
+    FOLLOW_USER(
+        AType.INSERT,
+        "follow a user", "f",
+        "InsertFollow(?,?,?)",
+        new Parameter(PType.INT, "followed_id", "user id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER),
+        new Parameter(PType.INT, "follower_id", "users user id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER),
+        new Parameter(PType.DATE, "date", "date", Requirement.SimpleReq.NONEMPTY)
+    ),
+    UNFOLLOW_USER(
+        AType.DELETE,
+        "unfollow a user", "u",
+        "DeleteFollow(?,?)",
+        new Parameter(PType.INT, "followed_id", "user id", Requirement.SimpleReq.NONEMPTY),
+        new Parameter(PType.INT, "follower_id", "users user id", Requirement.SimpleReq.NONEMPTY)
+    ),
+    INSERT_NEW_GAME(
+        AType.INSERT,
+        "insert a new game to database", "ig",
+        "InsertGame(?,?,?,?,?,?)",
+        new Parameter(PType.STRING, "game_name", "game name", Requirement.SimpleReq.NONEMPTY),
+        new Parameter(PType.INT, "review_avg", "game's review average", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER),
+        new Parameter(PType.INT, "ESRB_rating_id", "ESRB rating id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER),
+        new Parameter(PType.DATE, "release_date", "date game was released", Requirement.SimpleReq.NONEMPTY),
+        new Parameter(PType.INT, "price", "price", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER),
+        new Parameter(PType.INT, "id", "id output", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER)
+    ),
+    UPDATE_GAME_REVIEW_AVERAGE(
+        AType.UPDATE,
+        "update a games review average", "ua",
+        "UpdateGameReviewAverage(?,?)",
+        new Parameter(PType.INT, "game_id", "game id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER),
+        new Parameter(PType.INT, "review_avg", "update review average", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER)
+    ),
+    UPDATE_GAME_PRICE(
+        AType.UPDATE,
+        "update the price of existing game", "up",
+        "UpdateGamePrice(?,?)",
+        new Parameter(PType.INT, "game_id", "game id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER),
+        new Parameter(PType.INT, "price", "price", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER)
+    ),
+    DELETE_GAME(
+        AType.DELETE,
+        "delete game from database", "dg",
+        "DeleteGame(?)",
+        new Parameter(PType.INT, "game_id", "game id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER)
+    ),
+    GRANT_GAME(
+        AType.INSERT,
+        "grant possesion of a game to user", "gg",
+        "InsertGameOwnership(?,?,?)",
+        new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY),
+        new Parameter(PType.INT, "game_id", "game's id", Requirement.SimpleReq.NONEMPTY),
+        new Parameter(PType.DATE, "date", "date", Requirement.SimpleReq.NONEMPTY)
+    ),
+    VIEW_PROFILE_COMMENTS(
+        AType.QUERY,
+        "view comments on user profile", "vc",
+        "GetProfileComments(?)",
+        new Parameter(PType.STRING, "user_id", "user id", Requirement.SimpleReq.NONEMPTY) 
+    ),
+    VIEW_GAMES_OWNED(
+        AType.QUERY,
+        "view games owned", "vg",
+        "GetOwnedGamesForUser(?)",
+        new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY) 
+    ),
+    
     SEARCH_GAMES_ESRB_RATING(
         AType.QUERY,
         "search games by ESRB rating", "se",
-        "[games].[search_esrb_rating](?)",
-        new Parameter(PType.INT, "rating_id", "ESRB rating id", Requirement.SimpleReq.NONEMPTY)
+        "GetGamesWithESRB(?)",
+        new Parameter(PType.INT, "ESRB_id", "ESRB rating id", Requirement.SimpleReq.NONEMPTY)
     ),
     SEARCH_GAMES_HIGHEST_RATING(
         AType.QUERY,
-        "search games by highest rating average", "sa",
-        "[games].[search_highest_average]"
-        //would not take in any parameters
+        "view games by highest rating average", "sa",
+        "GamesOrderedByReview"
     ),
     VIEW_GAME_DETAILS(
         AType.QUERY,
         "view game details", "vd",
-        "[games].[view_game_details](?)",
+        "GetGameDetails(?)",
         new Parameter(PType.INT, "game_id", "game id", Requirement.SimpleReq.NONEMPTY)
     ),
     VIEW_FOLLOWED_GAME_SIMILARITIES(
         AType.QUERY,
-        "users followed that own game", "vfg",
-        "[user].[followed_game_similarities](?,?)",
+        "view users followed that own game", "vfg",
+        "GetFollowedUsersThatOwnGame(?,?)",
         new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY),
         new Parameter(PType.INT, "game_id", "game id", Requirement.SimpleReq.NONEMPTY)
     ),
     VIEW_BEST_SELLING(
         AType.QUERY,
         "view top selling", "vs",
-        "[games].[best_selling]"
-        //would not take any parameters
-    )
-    
-    ;
+        "GetBestSellingPastSevenDays(?)",
+        new Parameter(PType.STRING, "limit", "Amount to view", Requirement.SimpleReq.NONEMPTY)
+    );
 
     /** What type of SQL statement this Action performs */
     public final AType type;
