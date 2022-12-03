@@ -117,7 +117,7 @@ public class MainApp {
         // TODO: format
         while (resultSet.next()) {
             for (int i = 1; i <= columnCount; i++) {
-                System.out.printf("%s ", resultSet.getString(i));
+                System.out.printf("%-5s  ", resultSet.getString(i));
             }
             System.out.println();
         }
