@@ -25,55 +25,55 @@ public enum Action {
         "create account", "ca",
         "[InsertUser](?,?,?)", // 3rd is output param for created ID
         CA_USERNAME,
-        new Parameter(PType.DATE, "date", "join date", Requirement.SimpleReq.NONEMPTY)
+        CA_JOIN_DATE
     ),
     UPDATE_USERNAME(
         AType.UPDATE,
         "change username", "uu",
         "[UpdateUsername](?,?)",
-        new Parameter(PType.INT, "user_id", "user id"),
-        new Parameter(PType.STRING, "new_name", "new username") //25
+        UU_USER_ID,
+        UU_NEW_NAME
     ),
     DELETE_USER(
         AType.DELETE,
         "delete account", "du",
         "[DeleteUser](?)",
-        new Parameter(PType.INT, "user_id", "user id")
+        DU_USER_ID
     ),
     VIEW_USER_INFO(
         AType.QUERY,
         "get account information for user", "gu",
         "[GetUserInfo](?)",
-        new Parameter(PType.INT, "user_id", "user id")
+        VU_USER_ID
     ),
     MAKE_COMMENT(
         AType.INSERT,
         "add new comment", "mc",
         "[InsertComment(?,?,?,?)]",
-        new Parameter(PType.INT, "commenter_id", "commenter's user id", Requirement.SimpleReq.NONEMPTY),
-        new Parameter(PType.INT, "profile_id", "profile user's id", Requirement.SimpleReq.NONEMPTY),
-        new Parameter(PType.DATETIME, "datetime", "datetime"),
-        new Parameter(PType.STRING, "message", "message", Requirement.SimpleReq.NONEMPTY) //100
+        MC_COMMENTER_ID,
+        MC_PROFILE_ID,
+        MC_DATETIME,
+        MC_MESSAGE
     ),
     LIST_FOLLOWERS(
         AType.QUERY,
         "list users who follow this user", "lfr",
         "[GetFollowerList](?)",
-        new Parameter(PType.INT, "user_id", "followed-user id", Requirement.SimpleReq.NONEMPTY)
+        LFR_USER_ID
     ),
     LIST_FOLLOWED(
         AType.QUERY,
         "list users who follow this user", "lfd",
         "[GetFollowedList](?)",
-        new Parameter(PType.INT, "user_id", "followed-user id", Requirement.SimpleReq.NONEMPTY)
+        LFD_USER_ID
     ),
     FOLLOW_USER(
         AType.INSERT,
         "have userA follow userB", "fu",
         "[InsertFollow](?,?,?)",
-        new Parameter(PType.INT, "follower_id", "userA (follower) id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER),
-        new Parameter(PType.INT, "followed_id", "userB (followed) id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER),
-        new Parameter(PType.DATETIME, "date", "datetime")
+        FU_FOLLOWER_ID,
+        FU_FOLLOWED_ID,
+        FU_DATE
     ),
     UNFOLLOW_USER(
         AType.DELETE,
@@ -235,9 +235,25 @@ public enum Action {
 
     /**
      * An argument the user must provide to the Action.
+     * Placed in an enum so that the GUI can directly refer to specific Parameters
      */
     public enum Parameter {
         CA_USERNAME(PType.STRING, "username", "username", Requirement.SimpleReq.NONEMPTY), //25
+        CA_JOIN_DATE(PType.DATE, "date", "join date", Requirement.SimpleReq.NONEMPTY),
+        UU_USER_ID(PType.INT, "user_id", "user id"),
+        UU_NEW_NAME(PType.STRING, "new_name", "new username"), //25
+        DU_USER_ID(PType.INT, "user_id", "user id"),
+        VU_USER_ID(PType.INT, "user_id", "user id"),
+        MC_COMMENTER_ID(PType.INT, "commenter_id", "commenter's user id", Requirement.SimpleReq.NONEMPTY),
+        MC_PROFILE_ID(PType.INT, "profile_id", "profile user's id", Requirement.SimpleReq.NONEMPTY),
+        MC_DATETIME(PType.DATETIME, "datetime", "datetime"),
+        MC_MESSAGE(PType.STRING, "message", "message", Requirement.SimpleReq.NONEMPTY), //100
+        LFR_USER_ID(PType.INT, "user_id", "followed-user id", Requirement.SimpleReq.NONEMPTY),
+        LFD_USER_ID(PType.INT, "user_id", "followed-user id", Requirement.SimpleReq.NONEMPTY),
+        FU_FOLLOWER_ID(PType.INT, "follower_id", "userA (follower) id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER),
+        FU_FOLLOWED_ID(PType.INT, "followed_id", "userB (followed) id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER),
+        FU_DATE(PType.DATETIME, "date", "datetime"),
+
         ;
         /** What SQL type this Parameter maps to */
         public final PType type;
