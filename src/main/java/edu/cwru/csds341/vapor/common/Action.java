@@ -79,25 +79,25 @@ public enum Action {
         AType.DELETE,
         "have userA unfollow userB", "ufu",
         "[DeleteFollow](?,?)",
-        new Parameter(PType.INT, "follower_id", "userA id", Requirement.SimpleReq.NONEMPTY),
-        new Parameter(PType.INT, "followed_id", "userB id", Requirement.SimpleReq.NONEMPTY)
+        UFU_FOLLOWER_ID,
+        UFU_FOLLOWED_ID
     ),
     ADD_GAME(
         AType.INSERT_ID,
         "add a new game", "ag",
         "[InsertGame](?,?,?,?,?,?)",
-        new Parameter(PType.STRING, "game_name", "game name"), //35
-        new Parameter(PType.INT, "review_avg", "review average"),
-        new Parameter(PType.INT, "ESRB_rating_id", "ESRB rating ID"),
-        new Parameter(PType.DATE, "release_date", "release date"),
-        new Parameter(PType.MONEY, "price", "price")
+        AG_GAME_NAME,
+        AG_REVIEW_AVG,
+        AG_ESRB_RATING_ID,
+        AG_RELEASE_DATE,
+        AG_PRICE
     ),
     UPDATE_GAME_REVIEW_AVG(
         AType.UPDATE,
         "update the review average for a game", "ugr",
         "[UpdateGameReviewAvg](?,?)",
-        new Parameter(PType.INT, "game_id", "game id"),
-        new Parameter(PType.INT, "review_avg", "new review average")
+        UGR_GAME_ID,
+        UGR_NEW_AVERAGE
     ),
     UPDATE_GAME_PRICE(
         AType.UPDATE,
@@ -253,7 +253,15 @@ public enum Action {
         FU_FOLLOWER_ID(PType.INT, "follower_id", "userA (follower) id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER),
         FU_FOLLOWED_ID(PType.INT, "followed_id", "userB (followed) id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER),
         FU_DATE(PType.DATETIME, "date", "datetime"),
-
+        UFU_FOLLOWER_ID(PType.INT, "follower_id", "userA id", Requirement.SimpleReq.NONEMPTY),
+        UFU_FOLLOWED_ID(PType.INT, "followed_id", "userB id", Requirement.SimpleReq.NONEMPTY),
+        AG_GAME_NAME(PType.STRING, "game_name", "game name"), //35
+        AG_REVIEW_AVG(PType.INT, "review_avg", "review average"),
+        AG_ESRB_RATING_ID(PType.INT, "ESRB_rating_id", "ESRB rating ID"),
+        AG_RELEASE_DATE(PType.DATE, "release_date", "release date"),
+        AG_PRICE(PType.MONEY, "price", "price"),
+        UGR_GAME_ID(PType.INT, "game_id", "game id"),
+        UGR_NEW_AVERAGE(PType.INT, "review_avg", "new review average"),
         ;
         /** What SQL type this Parameter maps to */
         public final PType type;
