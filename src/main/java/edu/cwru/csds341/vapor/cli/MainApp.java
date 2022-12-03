@@ -102,21 +102,22 @@ public class MainApp {
     }
 
     private static void performQuery(Action action, ResultSet resultSet) throws SQLException {
-        System.out.printf("Results for: %s", action.description);
+        System.out.printf("Results for: %s%n", action.description);
         // format
         // first show column names?
         var metadata = resultSet.getMetaData();
-        List<String> labels = new ArrayList<>();
         int columnCount = resultSet.getMetaData().getColumnCount();
+        List<String> labels = new ArrayList<>(columnCount);
         for (int i = 1; i <= columnCount; i++) {
             labels.add(metadata.getColumnLabel(i));
         }
         // todo print labels better
         System.out.printf(labels.toString());
+        System.out.println();
         // TODO: format
         while (resultSet.next()) {
             for (int i = 1; i <= columnCount; i++) {
-                System.out.printf("%s", resultSet.getString(i));
+                System.out.printf("%s ", resultSet.getString(i));
             }
             System.out.println();
         }
