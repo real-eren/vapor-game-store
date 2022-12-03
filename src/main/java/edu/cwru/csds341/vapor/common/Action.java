@@ -7,6 +7,8 @@ import java.sql.*;
 import java.util.List;
 import java.util.Map;
 
+import static edu.cwru.csds341.vapor.common.Action.Parameter.*;
+
 /**
  * DB-involving action that can be done in the application, such as "add a game", "create an account".
  * <li>Has a list of {@link Parameter}s.</li>
@@ -22,7 +24,7 @@ public enum Action {
         AType.INSERT_ID,
         "create account", "ca",
         "[InsertUser](?,?,?)", // 3rd is output param for created ID
-        new Parameter(PType.STRING, "username", "username", Requirement.SimpleReq.NONEMPTY), //25
+        CA_USERNAME,
         new Parameter(PType.DATE, "date", "join date", Requirement.SimpleReq.NONEMPTY)
     ),
     UPDATE_USERNAME(
@@ -234,8 +236,9 @@ public enum Action {
     /**
      * An argument the user must provide to the Action.
      */
-    public static class Parameter {
-
+    public enum Parameter {
+        CA_USERNAME(PType.STRING, "username", "username", Requirement.SimpleReq.NONEMPTY), //25
+        ;
         /** What SQL type this Parameter maps to */
         public final PType type;
 
