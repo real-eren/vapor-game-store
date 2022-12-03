@@ -130,7 +130,6 @@ public enum Action {
         "[GetOwnedGamesForUser](?)",
         new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY) 
     ),
-    //could be many more as said in query doc
     LIST_GAMES_WITH_ESRB_RATING(
         AType.QUERY,
         "list games with a specific ESRB rating", "lge",
