@@ -108,14 +108,14 @@ public class MainApp {
         var metadata = resultSet.getMetaData();
         List<String> labels = new ArrayList<>();
         int columnCount = resultSet.getMetaData().getColumnCount();
-        for (int i = 0; i < columnCount; i++) {
+        for (int i = 1; i <= columnCount; i++) {
             labels.add(metadata.getColumnLabel(i));
         }
         // todo print labels better
         System.out.printf(labels.toString());
         // TODO: format
         while (resultSet.next()) {
-            for (int i = 0; i < columnCount; i++) {
+            for (int i = 1; i <= columnCount; i++) {
                 System.out.printf("%s", resultSet.getString(i));
             }
             System.out.println();
