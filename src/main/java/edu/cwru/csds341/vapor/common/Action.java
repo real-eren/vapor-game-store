@@ -2,6 +2,7 @@ package edu.cwru.csds341.vapor.common;
 
 import edu.cwru.csds341.vapor.common.Action.Parameter.PType;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.List;
 import java.util.Map;
@@ -11,103 +12,162 @@ import java.util.Map;
  * <li>Has a list of {@link Parameter}s.</li>
  * <li>Associated with a stored procedure</li>
  * Designed to facilitate automating the menu creation.
+ * Prefix of 'VIEW' indicates a single value will be returned,
+ * Prefix of 'LIST' indicates many values may be returned.
+ * See stored_proc.sql for order of returned fields
  */
 public enum Action {
 
-    //todo
-    //make callable statements in database, correct storedProcedure strings for each action
-
-
     CREATE_ACCOUNT(
         AType.INSERT_ID,
-        "create account", "c",
-        "[user].[create_account](?)",
-        new Parameter(PType.STRING, "username", "username", Requirement.SimpleReq.NONEMPTY)
+        "create account", "ca",
+        "[InsertUser](?,?,?)", // 3rd is output param for created ID
+        new Parameter(PType.STRING, "username", "username", Requirement.SimpleReq.NONEMPTY), //25
+        new Parameter(PType.DATE, "date", "join date", Requirement.SimpleReq.NONEMPTY)
+    ),
+    UPDATE_USERNAME(
+        AType.UPDATE,
+        "change username", "uu",
+        "[UpdateUsername](?,?)",
+        new Parameter(PType.INT, "user_id", "user id"),
+        new Parameter(PType.STRING, "new_name", "new username") //25
+    ),
+    DELETE_USER(
+        AType.DELETE,
+        "delete account", "du",
+        "[DeleteUser](?)",
+        new Parameter(PType.INT, "user_id", "user id")
+    ),
+    VIEW_USER_INFO(
+        AType.QUERY,
+        "get account information for user", "gu",
+        "[GetUserInfo](?)",
+        new Parameter(PType.INT, "user_id", "user id")
     ),
     MAKE_COMMENT(
         AType.INSERT,
         "add new comment", "mc",
-        "[user_profile_comment].[make_comment(?,?,?)]",
-        new Parameter(PType.INT, "profile_id", "user id", Requirement.SimpleReq.NONEMPTY),
-        new Parameter(PType.STRING, "commenter_id", "users user id", Requirement.SimpleReq.NONEMPTY),
-        new Parameter(PType.STRING, "message", "message", Requirement.SimpleReq.NONEMPTY)
+        "[InsertComment(?,?,?,?)]",
+        new Parameter(PType.INT, "commenter_id", "commenter's user id", Requirement.SimpleReq.NONEMPTY),
+        new Parameter(PType.INT, "profile_id", "profile user's id", Requirement.SimpleReq.NONEMPTY),
+        new Parameter(PType.DATETIME, "datetime", "datetime"),
+        new Parameter(PType.STRING, "message", "message", Requirement.SimpleReq.NONEMPTY) //100
     ),
-    VIEW_FOLLOWERS(
-            AType.QUERY,
-            "view friends", "vf",
-            "[followers].[viewFollowers](?,?)",
-            new Parameter(PType.STRING, "user1", "user id", Requirement.SimpleReq.NONEMPTY)
-            ),
+    LIST_FOLLOWERS(
+        AType.QUERY,
+        "list users who follow this user", "lfr",
+        "[GetFollowerList](?)",
+        new Parameter(PType.INT, "user_id", "followed-user id", Requirement.SimpleReq.NONEMPTY)
+    ),
+    LIST_FOLLOWED(
+        AType.QUERY,
+        "list users who follow this user", "lfd",
+        "[GetFollowedList](?)",
+        new Parameter(PType.INT, "user_id", "followed-user id", Requirement.SimpleReq.NONEMPTY)
+    ),
     FOLLOW_USER(
         AType.INSERT,
-        "follow a user", "f",
-        "[follows].[follow_user](?,?)",
-        new Parameter(PType.INT, "userA_id", "user id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER),
-        new Parameter(PType.INT, "userB_id", "users user id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER)
+        "have userA follow userB", "fu",
+        "[InsertFollow](?,?,?)",
+        new Parameter(PType.INT, "follower_id", "userA (follower) id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER),
+        new Parameter(PType.INT, "followed_id", "userB (followed) id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER),
+        new Parameter(PType.DATETIME, "date", "datetime")
     ),
     UNFOLLOW_USER(
         AType.DELETE,
-        "unfollow a user", "u",
-        "[follows].[unfollow](?,?)",
-        new Parameter(PType.INT, "userA_id", "user id", Requirement.SimpleReq.NONEMPTY),
-        new Parameter(PType.INT, "userB_id", "users user id", Requirement.SimpleReq.NONEMPTY)
+        "have userA unfollow userB", "ufu",
+        "[DeleteFollow](?,?)",
+        new Parameter(PType.INT, "follower_id", "userA id", Requirement.SimpleReq.NONEMPTY),
+        new Parameter(PType.INT, "followed_id", "userB id", Requirement.SimpleReq.NONEMPTY)
+    ),
+    ADD_GAME(
+        AType.INSERT_ID,
+        "add a new game", "ag",
+        "[InsertGame](?,?,?,?,?,?)",
+        new Parameter(PType.STRING, "game_name", "game name"), //35
+        new Parameter(PType.INT, "review_avg", "review average"),
+        new Parameter(PType.INT, "ESRB_rating_id", "ESRB rating ID"),
+        new Parameter(PType.DATE, "release_date", "release date"),
+        new Parameter(PType.MONEY, "price", "price")
+    ),
+    UPDATE_GAME_REVIEW_AVG(
+        AType.UPDATE,
+        "update the review average for a game", "ugr",
+        "[UpdateGameReviewAvg](?,?)",
+        new Parameter(PType.INT, "game_id", "game id"),
+        new Parameter(PType.INT, "review_avg", "new review average")
+    ),
+    UPDATE_GAME_PRICE(
+        AType.UPDATE,
+        "update the price of a game", "ugp",
+        "[UpdateGamePrice](?,?)",
+        new Parameter(PType.INT, "game_id", "game id"),
+        new Parameter(PType.MONEY, "price", "new price")
+    ),
+    DELETE_GAME(
+        AType.DELETE,
+        "remove a game from the store", "dg",
+        "[DeleteGame](?)",
+        new Parameter(PType.INT, "game_id", "game id")
     ),
     GRANT_GAME(
         AType.INSERT,
-        "grant possesion of a game", "gg",
-        "g[ame_ownership].[grant_game_ownsership](?,?)",
+        "grant possession of a game", "gg",
+        "[InsertGameOwnership](?,?,?)",
         new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY),
-        new Parameter(PType.INT, "game_id", "game's id", Requirement.SimpleReq.NONEMPTY)
+        new Parameter(PType.INT, "game_id", "game id", Requirement.SimpleReq.NONEMPTY),
+        new Parameter(PType.DATE, "date", "date acquired", Requirement.SimpleReq.NONEMPTY)
     ),
-    VIEW_PROFILE(
+    LIST_PROFILE_COMMENTS(
         AType.QUERY,
-        "view user profile", "vf",
-        "[user].[view_profile](?)",
-        new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY)
+        "list comments on a user's profile, newest to oldest", "gpc",
+        "[GetProfileComments](?)",
+        new Parameter(PType.INT, "user_id", "user ID")
     ),
-    VIEW_GAMES_OWNED(
+    LIST_GAMES_OWNED(
         AType.QUERY,
-        "view games owned", "vg",
-        "[game_ownership].[view_games_owned](?)",
+        "view games owned by a user", "vgu",
+        "[GetOwnedGamesForUser](?)",
         new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY) 
     ),
-    VIEW_USER_INFO(
-        AType.QUERY,
-        "view username and join date", "vu",
-        "[user].[view_info](?)",
-        new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY)
-    ),
     //could be many more as said in query doc
-    SEARCH_GAMES_ESRB_RATING(
+    LIST_GAMES_WITH_ESRB_RATING(
         AType.QUERY,
-        "search games by ESRB rating", "se",
-        "[games].[search_esrb_rating](?)",
-        new Parameter(PType.INT, "rating_id", "ESRB rating id", Requirement.SimpleReq.NONEMPTY)
+        "list games with a specific ESRB rating", "lge",
+        "[GetGamesWithESRB](?)",
+        new Parameter(PType.INT, "ESRB_id", "ESRB rating id", Requirement.SimpleReq.NONEMPTY)
     ),
-    SEARCH_GAMES_HIGHEST_RATING(
+    LIST_GAMES_HIGHEST_RATING(
         AType.QUERY,
-        "search games by highest rating average", "sa",
-        "[games].[search_highest_average]"
+        "list games from high to low review average", "lgr",
+        "[GamesOrderedByReview]()"
         //would not take in any parameters
     ),
     VIEW_GAME_DETAILS(
         AType.QUERY,
-        "view game details", "vd",
-        "[games].[view_game_details](?)",
+        "view game details", "vgd",
+        "[GetGameDetails](?)",
         new Parameter(PType.INT, "game_id", "game id", Requirement.SimpleReq.NONEMPTY)
     ),
-    VIEW_FOLLOWED_GAME_SIMILARITIES(
+    LIST_FOLLOWED_THAT_OWN_GAME(
         AType.QUERY,
-        "users followed that own game", "vfg",
-        "[user].[followed_game_similarities](?,?)",
+        "list users followed by a user and that own a game", "vfuog",
+        "[GetFollowedUsersThatOwnGame](?,?)",
         new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY),
         new Parameter(PType.INT, "game_id", "game id", Requirement.SimpleReq.NONEMPTY)
     ),
-    VIEW_BEST_SELLING(
+    LIST_N_BEST_SELLING(
         AType.QUERY,
-        "view top selling", "vs",
-        "[games].[best_selling]"
+        "view N top selling games", "vtsg",
+        "[GetBestSellingPastSevenDays](?)",
+        new Parameter(PType.INT, "limit", "N (as in top N)")
         //would not take any parameters
+    ),
+    LIST_ESRB_RATINGS(
+        AType.QUERY,
+        "List all the ESRB ratings", "lesrb",
+        "[GetAllESRBRatingDetails]()"
+        // no params
     )
     
     ;
@@ -143,7 +203,7 @@ public enum Action {
         this.type = type;
         this.description = description;
         this.shortName = shortname;
-        this.storedProcedureString = String.format("{call %s}", storedProcedureString);
+        this.storedProcedureString = String.format("{call [dbo].%s}", storedProcedureString);
         this.parameters = parameters;
     }
     Action(AType type, String description, String shortname, String storedProcedureString, Parameter... parameters) {
@@ -197,6 +257,12 @@ public enum Action {
                     statement.setInt(argName, Integer.parseInt(val));
                 }
             },
+            MONEY {
+                @Override
+                void apply(CallableStatement statement, String argName, String val) throws SQLException {
+                    statement.setBigDecimal(argName, new BigDecimal(val));
+                }
+            },
             STRING {
                 @Override
                 void apply(CallableStatement statement, String argName, String val) throws SQLException {
@@ -207,6 +273,12 @@ public enum Action {
                 @Override
                 void apply(CallableStatement statement, String argName, String val) throws SQLException {
                     statement.setDate(argName, Date.valueOf(val));
+                }
+            },
+            DATETIME {
+                @Override
+                void apply(CallableStatement statement, String argName, String val) throws SQLException {
+                    statement.setTimestamp(argName, Timestamp.valueOf(val));
                 }
             }
             ;
