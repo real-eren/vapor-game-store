@@ -103,24 +103,51 @@ public class MainApp {
 
     private static void performQuery(Action action, ResultSet resultSet) throws SQLException {
         System.out.printf("Results for: %s%n", action.description);
-        // format
-        // first show column names?
+
+        // first gather all results, keeping track of the max width for each column (include labels row!)
+        // then compute a format string
+        // then print each row
+
         var metadata = resultSet.getMetaData();
         int columnCount = resultSet.getMetaData().getColumnCount();
-        List<String> labels = new ArrayList<>(columnCount);
+
+        List<String[]> rows = new ArrayList<>();
+        // max width for each column, updated when collecting each row
+        int[] maxWidth = new int[columnCount];
+
+        String[] labels = new String[columnCount];
         for (int i = 1; i <= columnCount; i++) {
-            labels.add(metadata.getColumnLabel(i));
+            String columnLabel = metadata.getColumnLabel(i);
+            labels[i-1] = columnLabel;
+            maxWidth[i-1] = Math.max(maxWidth[i-1], columnLabel.length());
         }
-        // todo print labels better
-        System.out.printf(labels.toString());
-        System.out.println();
-        // TODO: format
+        rows.add(labels);
+
         while (resultSet.next()) {
+            String[] row = new String[columnCount];
             for (int i = 1; i <= columnCount; i++) {
-                System.out.printf("%-5s  ", resultSet.getString(i));
+                String columnVal = resultSet.getString(i);
+                row[i-1] = columnVal;
+                maxWidth[i-1] = Math.max(maxWidth[i-1], columnVal.length());
             }
-            System.out.println();
+            rows.add(row);
         }
+
+        if (rows.size() == 1) {
+            System.out.println("No results");
+            return;
+        }
+
+        // format string for each column. computed after all rows were collected
+        StringBuilder formatStringBuilder = new StringBuilder(columnCount * 8); // simple heuristic
+
+        for (int columnWidth : maxWidth)
+            formatStringBuilder.append("%-").append(columnWidth + 1).append("s  ");
+
+        var formatString = formatStringBuilder.append("\n").toString();
+
+        for (String[] row : rows)
+            System.out.printf(formatString, (Object[]) row);
     }
 
     public static void main(String[] args) {
