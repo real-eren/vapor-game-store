@@ -103,40 +103,40 @@ public enum Action {
         AType.UPDATE,
         "update the price of a game", "ugp",
         "[UpdateGamePrice](?,?)",
-        new Parameter(PType.INT, "game_id", "game id"),
-        new Parameter(PType.MONEY, "price", "new price")
+        UGP_GAMEID,
+        UGP_PRICE
     ),
     DELETE_GAME(
         AType.DELETE,
         "remove a game from the store", "dg",
         "[DeleteGame](?)",
-        new Parameter(PType.INT, "game_id", "game id")
+        DG_GAMEID
     ),
     GRANT_GAME(
         AType.INSERT,
         "grant possession of a game", "gg",
         "[InsertGameOwnership](?,?,?)",
-        new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY),
-        new Parameter(PType.INT, "game_id", "game id", Requirement.SimpleReq.NONEMPTY),
-        new Parameter(PType.DATE, "date", "date acquired", Requirement.SimpleReq.NONEMPTY)
+        GG_USERID,
+        GG_GAMEID,
+        GG_DATE
     ),
     LIST_PROFILE_COMMENTS(
         AType.QUERY,
         "list comments on a user's profile, newest to oldest", "gpc",
         "[GetProfileComments](?)",
-        new Parameter(PType.INT, "user_id", "user ID")
+        GPC_USERID
     ),
     LIST_GAMES_OWNED(
         AType.QUERY,
         "view games owned by a user", "vgu",
         "[GetOwnedGamesForUser](?)",
-        new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY) 
+        VGU_USERID
     ),
     LIST_GAMES_WITH_ESRB_RATING(
         AType.QUERY,
         "list games with a specific ESRB rating", "lge",
         "[GetGamesWithESRB](?)",
-        new Parameter(PType.INT, "ESRB_id", "ESRB rating id", Requirement.SimpleReq.NONEMPTY)
+        LGE_RATINGID
     ),
     LIST_GAMES_HIGHEST_RATING(
         AType.QUERY,
@@ -148,21 +148,20 @@ public enum Action {
         AType.QUERY,
         "view game details", "vgd",
         "[GetGameDetails](?)",
-        new Parameter(PType.INT, "game_id", "game id", Requirement.SimpleReq.NONEMPTY)
+        VGD_GAMEID
     ),
     LIST_FOLLOWED_THAT_OWN_GAME(
         AType.QUERY,
         "list users followed by a user and that own a game", "vfuog",
         "[GetFollowedUsersThatOwnGame](?,?)",
-        new Parameter(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY),
-        new Parameter(PType.INT, "game_id", "game id", Requirement.SimpleReq.NONEMPTY)
+        VFUOG_USERID,
+        VFUOG_GAMEID
     ),
     LIST_N_BEST_SELLING(
         AType.QUERY,
         "view N top selling games", "vtsg",
         "[GetBestSellingPastSevenDays](?)",
-        new Parameter(PType.INT, "limit", "N (as in top N)")
-        //would not take any parameters
+        VTSG_LIMIT
     ),
     LIST_ESRB_RATINGS(
         AType.QUERY,
@@ -262,6 +261,19 @@ public enum Action {
         AG_PRICE(PType.MONEY, "price", "price"),
         UGR_GAME_ID(PType.INT, "game_id", "game id"),
         UGR_NEW_AVERAGE(PType.INT, "review_avg", "new review average"),
+        UGP_GAMEID(PType.INT, "game_id", "game id"),
+        UGP_PRICE(PType.MONEY, "price", "new price"),
+        DG_GAMEID(PType.INT, "game_id", "game id"),
+        GG_USERID(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY),
+        GG_GAMEID(PType.INT, "game_id", "game id", Requirement.SimpleReq.NONEMPTY),
+        GG_DATE(PType.DATE, "date", "date aquired", Requirement.SimpleReq.NONEMPTY),
+        GPC_USERID(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY),
+        VGU_USERID(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY),
+        LGE_RATINGID(PType.INT, "ESRB_id", "ESRB rating id", Requirement.SimpleReq.NONEMPTY),
+        VGD_GAMEID(PType.INT, "game_id", "game id", Requirement.SimpleReq.NONEMPTY),
+        VFUOG_USERID(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY),
+        VFUOG_GAMEID(PType.INT, "game_id", "game id", Requirement.SimpleReq.NONEMPTY),
+        VTSG_LIMIT(PType.INT, "limit", "limit");
         ;
         /** What SQL type this Parameter maps to */
         public final PType type;
