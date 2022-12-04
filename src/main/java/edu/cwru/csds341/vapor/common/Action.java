@@ -334,14 +334,14 @@ public enum Action {
             abstract void apply(CallableStatement statement, String argName, String val) throws SQLException;
         }
 
-        public Parameter(PType type, String argName, String displayName, List<Requirement> requirements) {
+        Parameter(PType type, String argName, String displayName, List<Requirement> requirements) {
             this.type = type;
             this.argName = argName;
             this.displayName = displayName;
             this.requirements = List.copyOf(requirements);
         }
 
-        public Parameter(PType type, String argName, String displayName, Requirement... requirements) {
+        Parameter(PType type, String argName, String displayName, Requirement... requirements) {
             this(type, argName, displayName, List.of(requirements));
         }
 
