@@ -151,6 +151,12 @@ public enum Action {
         "[GetGameDetails](?)",
         VGD_GAMEID
     ),
+    LIST_GAME_GENRES(
+        AType.QUERY,
+        "list the genres a game belongs to", "lgg",
+        "[GetGameGenres](?)",
+        LGG_GAMEID
+    ),
     LIST_FOLLOWED_THAT_OWN_GAME(
         AType.QUERY,
         "list users followed by a user and that own a game", "vfuog",
@@ -272,6 +278,7 @@ public enum Action {
         VGU_USERID(PType.INT, "user_id", "user id"),
         LGE_RATINGID(PType.INT, "ESRB_id", "ESRB rating id"),
         VGD_GAMEID(PType.INT, "game_id", "game id"),
+        LGG_GAMEID(PType.INT, "game_id", "game id"),
         VFUOG_USERID(PType.INT, "user_id", "user id"),
         VFUOG_GAMEID(PType.INT, "game_id", "game id"),
         VTSG_LIMIT(PType.INT, "limit", "limit"),
