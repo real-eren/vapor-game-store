@@ -1,11 +1,12 @@
 package edu.cwru.csds341.vapor.common;
 
-import edu.cwru.csds341.vapor.common.Action.Parameter.PType;
-
 import java.math.BigDecimal;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static edu.cwru.csds341.vapor.common.Action.Parameter.*;
 
@@ -237,24 +238,24 @@ public enum Action {
      * Placed in an enum so that the GUI can directly refer to specific Parameters
      */
     public enum Parameter {
-        CA_USERNAME(PType.STRING, "username", "username", Requirement.SimpleReq.NONEMPTY), //25
-        CA_JOIN_DATE(PType.DATE, "date", "join date", Requirement.SimpleReq.NONEMPTY),
+        CA_USERNAME(PType.STRING, "username", "username", new Requirement.LengthReq(1,25)),
+        CA_JOIN_DATE(PType.DATE, "date", "join date"),
         UU_USER_ID(PType.INT, "user_id", "user id"),
-        UU_NEW_NAME(PType.STRING, "new_name", "new username"), //25
+        UU_NEW_NAME(PType.STRING, "new_name", "new username", new Requirement.LengthReq(1,25)),
         DU_USER_ID(PType.INT, "user_id", "user id"),
         VU_USER_ID(PType.INT, "user_id", "user id"),
-        MC_COMMENTER_ID(PType.INT, "commenter_id", "commenter's user id", Requirement.SimpleReq.NONEMPTY),
-        MC_PROFILE_ID(PType.INT, "profile_id", "profile user's id", Requirement.SimpleReq.NONEMPTY),
+        MC_COMMENTER_ID(PType.INT, "commenter_id", "commenter's user id"),
+        MC_PROFILE_ID(PType.INT, "profile_id", "profile user's id"),
         MC_DATETIME(PType.DATETIME, "datetime", "datetime"),
-        MC_MESSAGE(PType.STRING, "message", "message", Requirement.SimpleReq.NONEMPTY), //100
-        LFR_USER_ID(PType.INT, "user_id", "followed-user id", Requirement.SimpleReq.NONEMPTY),
-        LFD_USER_ID(PType.INT, "user_id", "followed-user id", Requirement.SimpleReq.NONEMPTY),
-        FU_FOLLOWER_ID(PType.INT, "follower_id", "userA (follower) id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER),
-        FU_FOLLOWED_ID(PType.INT, "followed_id", "userB (followed) id", Requirement.SimpleReq.NONEMPTY, Requirement.SimpleReq.POSITIVE_INTEGER),
+        MC_MESSAGE(PType.STRING, "message", "message"), //100
+        LFR_USER_ID(PType.INT, "user_id", "followed-user id"),
+        LFD_USER_ID(PType.INT, "user_id", "followed-user id"),
+        FU_FOLLOWER_ID(PType.INT, "follower_id", "userA (follower) id"),
+        FU_FOLLOWED_ID(PType.INT, "followed_id", "userB (followed) id"),
         FU_DATE(PType.DATETIME, "date", "datetime"),
-        UFU_FOLLOWER_ID(PType.INT, "follower_id", "userA id", Requirement.SimpleReq.NONEMPTY),
-        UFU_FOLLOWED_ID(PType.INT, "followed_id", "userB id", Requirement.SimpleReq.NONEMPTY),
-        AG_GAME_NAME(PType.STRING, "game_name", "game name"), //35
+        UFU_FOLLOWER_ID(PType.INT, "follower_id", "userA id"),
+        UFU_FOLLOWED_ID(PType.INT, "followed_id", "userB id"),
+        AG_GAME_NAME(PType.STRING, "game_name", "game name", new Requirement.LengthReq(1,35)),
         AG_REVIEW_AVG(PType.INT, "review_avg", "review average"),
         AG_ESRB_RATING_ID(PType.INT, "ESRB_rating_id", "ESRB rating ID"),
         AG_RELEASE_DATE(PType.DATE, "release_date", "release date"),
@@ -264,16 +265,16 @@ public enum Action {
         UGP_GAMEID(PType.INT, "game_id", "game id"),
         UGP_PRICE(PType.MONEY, "price", "new price"),
         DG_GAMEID(PType.INT, "game_id", "game id"),
-        GG_USERID(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY),
-        GG_GAMEID(PType.INT, "game_id", "game id", Requirement.SimpleReq.NONEMPTY),
-        GG_DATE(PType.DATE, "date", "date aquired", Requirement.SimpleReq.NONEMPTY),
-        GPC_USERID(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY),
-        VGU_USERID(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY),
-        LGE_RATINGID(PType.INT, "ESRB_id", "ESRB rating id", Requirement.SimpleReq.NONEMPTY),
-        VGD_GAMEID(PType.INT, "game_id", "game id", Requirement.SimpleReq.NONEMPTY),
-        VFUOG_USERID(PType.INT, "user_id", "user id", Requirement.SimpleReq.NONEMPTY),
-        VFUOG_GAMEID(PType.INT, "game_id", "game id", Requirement.SimpleReq.NONEMPTY),
-        VTSG_LIMIT(PType.INT, "limit", "limit");
+        GG_USERID(PType.INT, "user_id", "user id"),
+        GG_GAMEID(PType.INT, "game_id", "game id"),
+        GG_DATE(PType.DATE, "date", "date aquired"),
+        GPC_USERID(PType.INT, "user_id", "user id"),
+        VGU_USERID(PType.INT, "user_id", "user id"),
+        LGE_RATINGID(PType.INT, "ESRB_id", "ESRB rating id"),
+        VGD_GAMEID(PType.INT, "game_id", "game id"),
+        VFUOG_USERID(PType.INT, "user_id", "user id"),
+        VFUOG_GAMEID(PType.INT, "game_id", "game id"),
+        VTSG_LIMIT(PType.INT, "limit", "limit"),
         ;
         /** What SQL type this Parameter maps to */
         public final PType type;
@@ -288,38 +289,53 @@ public enum Action {
         public final List<Requirement> requirements;
 
         /** Maps to SQL data types */
-        public enum PType {
-            INT {
+        public enum PType implements Requirement {
+            INT(Pattern.compile("\\d{1,8}"),"(#){1,8}") {
                 @Override
                 void apply(CallableStatement statement, String argName, String val) throws SQLException {
                     statement.setInt(argName, Integer.parseInt(val));
                 }
             },
-            MONEY {
+            MONEY(Pattern.compile("\\d{0,19}(.\\d{0,4})?"), "(#){0,19}(.(#){0,4})?") {
                 @Override
                 void apply(CallableStatement statement, String argName, String val) throws SQLException {
                     statement.setBigDecimal(argName, new BigDecimal(val));
                 }
             },
-            STRING {
+            STRING(Pattern.compile(".*"), "{any}") {
                 @Override
                 void apply(CallableStatement statement, String argName, String val) throws SQLException {
                     statement.setString(argName, val);
                 }
             },
-            DATE {
+            DATE(
+                    Pattern.compile("\\d\\d\\d\\d-(?:[0-9]|1[012])-(?:0?[1-9]|1[012])"),
+                    "YYYY-MM-DD"
+            ) {
                 @Override
                 void apply(CallableStatement statement, String argName, String val) throws SQLException {
                     statement.setDate(argName, Date.valueOf(val));
                 }
             },
-            DATETIME {
+            DATETIME(
+                    Pattern.compile("\\d\\d\\d\\d-(?:[0-9]|1[012])-(?:0?[1-9]|1[012]) ([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.\\d+)?"),
+                    "YYYY-MM-DD hh:mm:ss.nnnn") {
                 @Override
                 void apply(CallableStatement statement, String argName, String val) throws SQLException {
                     statement.setTimestamp(argName, Timestamp.valueOf(val));
                 }
             }
             ;
+
+            /** Displayed to the user */
+            private final String expectedFormatMessage;
+            private final Pattern pattern;
+
+            PType(Pattern regex, String expectedFormat) {
+                this.expectedFormatMessage = String.format("value must be of the form '%s'", expectedFormat);
+                this.pattern = regex;
+            }
+
 
             /**
              * Set a parameter on a statement, interpreting the value according to this type.
@@ -332,17 +348,29 @@ public enum Action {
              *                      or this method is called on a closed CallableStatement
              */
             abstract void apply(CallableStatement statement, String argName, String val) throws SQLException;
+
+            @Override
+            public boolean accepts(String str) {
+                return pattern.matcher(str).matches();
+            }
+
+            @Override
+            public String getMessage() {
+                return expectedFormatMessage;
+            }
         }
 
         Parameter(PType type, String argName, String displayName, List<Requirement> requirements) {
             this.type = type;
             this.argName = argName;
             this.displayName = displayName;
-            this.requirements = List.copyOf(requirements);
+            requirements.add(Requirement.SimpleReq.NONEMPTY);
+            requirements.add(type);
+            this.requirements = Collections.unmodifiableList(requirements);
         }
 
         Parameter(PType type, String argName, String displayName, Requirement... requirements) {
-            this(type, argName, displayName, List.of(requirements));
+            this(type, argName, displayName, new ArrayList<>(List.of(requirements)));
         }
 
         /**

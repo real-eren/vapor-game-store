@@ -9,12 +9,32 @@ public interface Requirement {
 
     String getMessage();
 
+
+    class LengthReq implements Requirement {
+        final int minLength;
+        final int maxLength;
+
+        public LengthReq(int minLength, int maxLength) {
+            this.minLength = minLength;
+            this.maxLength = maxLength;
+        }
+
+        @Override
+        public boolean accepts(String str) {
+            return false;
+        }
+
+        @Override
+        public String getMessage() {
+            return String.format("Input length must be between %d and %d characters long.", minLength, maxLength);
+        }
+    }
+
     /**
      * Requirements that may be common
      */
     enum SimpleReq implements Requirement {
         NONEMPTY(Predicate.not(String::isEmpty), "value cannot be empty"),
-        POSITIVE_INTEGER(Pattern.compile("\\d+"),"value must be a positive integer"),
         ;
 
         SimpleReq(Predicate<String> predicate, String message) {
