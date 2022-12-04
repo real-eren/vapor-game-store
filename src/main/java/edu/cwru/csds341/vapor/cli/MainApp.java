@@ -46,11 +46,15 @@ public class MainApp {
             String input = null;
             while (! valid) {
                 System.out.print("Enter value for '" + parameter.displayName + "': ");
-                input = scanner.nextLine();
+                input = scanner.nextLine().strip();
                 valid = true;
                 if (input.equalsIgnoreCase("cancel")) {
-                    System.out.println("Cancel the command (Y) or treat as input [default]?: ");
-                    if (scanner.nextLine().equalsIgnoreCase("y")) return Optional.empty();
+                    System.out.println("Cancel the command (Y) or treat as input (i)?: ");
+                    while (true) {
+                        String confirmation = scanner.nextLine().strip();
+                        if (confirmation.equalsIgnoreCase("y")) return Optional.empty();
+                        else if (confirmation.equalsIgnoreCase("i")) break;
+                    }
                 }
 
                 // validate
@@ -165,7 +169,7 @@ public class MainApp {
             // Main loop
             while (true) {
                 System.out.print("Enter a command: ");
-                var line = scanner.nextLine();
+                var line = scanner.nextLine().strip();
 
                 if (line.equalsIgnoreCase("help")) {
                     printHelp();
@@ -174,7 +178,7 @@ public class MainApp {
 
                 if (line.equalsIgnoreCase("exit")) {
                     System.out.print("Confirm exit (yes): ");
-                    var confirmation = scanner.nextLine();
+                    var confirmation = scanner.nextLine().strip();
                     if (confirmation.equalsIgnoreCase("yes")) break;
                     else continue;
                 }
