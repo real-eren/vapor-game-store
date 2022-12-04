@@ -8,10 +8,7 @@ import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 
 public class MainApp {
@@ -85,7 +82,11 @@ public class MainApp {
             Action.applyAll(cs, userInputs);
             switch (action.type) {
                 case INSERT_ID:
-                    // TODO: execute, print generated ID
+                    // out param is, by our convention, the last column
+                    int colCount = cs.getMetaData().getColumnCount();
+                    cs.registerOutParameter(colCount, Types.INTEGER);
+                    cs.executeUpdate();
+                    System.out.printf("ID of new item: %d\n", cs.getInt(colCount));
                     break;
                 case UPDATE:
                 case INSERT:
@@ -98,6 +99,8 @@ public class MainApp {
                     performQuery(action, resultSet);
                     break;
             }
+        } catch (SQLException e) {
+            System.out.println("Error occurred while performing command: " + e.getMessage());
         }
     }
 
