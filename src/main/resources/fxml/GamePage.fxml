@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<Pane prefHeight="627.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Button fx:id="purchasebutton" layoutX="605.0" layoutY="220.0" mnemonicParsing="false" onAction="#onButtonPress" text="Purchase Game" />
+      <Pane prefHeight="627.0" prefWidth="240.0" style="-fx-background-color: #000000;">
+         <children>
+            <Button layoutX="20.0" layoutY="52.0" mnemonicParsing="false" onAction="#profileClick" prefHeight="76.0" prefWidth="191.0" style="-fx-border-color: #ADD8E6; -fx-border-width: 5;" text="Profile">
+               <font>
+                  <Font size="29.0" />
+               </font>
+            </Button>
+            <Button layoutX="20.0" layoutY="146.0" mnemonicParsing="false" onAction="#libraryClick" prefHeight="76.0" prefWidth="191.0" style="-fx-border-color: #ADD8E6; -fx-border-width: 5;" text="Library">
+               <font>
+                  <Font size="29.0" />
+               </font>
+            </Button>
+            <Button layoutX="20.0" layoutY="238.0" mnemonicParsing="false" onAction="#storeClick" prefHeight="76.0" prefWidth="191.0" style="-fx-border-color: #ADD8E6; -fx-border-width: 5;" text="Store">
+               <font>
+                  <Font size="29.0" />
+               </font>
+            </Button>
+         </children>
+      </Pane>
+      <Label fx:id="gamename" alignment="CENTER" layoutX="269.0" layoutY="26.0" prefHeight="109.0" prefWidth="590.0" text="Game Name" textAlignment="CENTER">
+         <font>
+            <Font size="41.0" />
+         </font>
+      </Label>
+      <Label fx:id="reviewrating" layoutX="280.0" layoutY="170.0" prefHeight="27.0" prefWidth="262.0" text="Review Rating:">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
+      <Label fx:id="esrbrating" layoutX="280.0" layoutY="205.0" prefHeight="27.0" prefWidth="249.0" text="ESRB Rating:">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
+      <Label fx:id="price" layoutX="604.0" layoutY="178.0" prefHeight="27.0" prefWidth="142.0" text="Price:">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
+      <Label fx:id="releasedate" layoutX="280.0" layoutY="240.0" prefHeight="27.0" prefWidth="240.0" text="Release Date:">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
+      <ListView fx:id="friendslist" layoutX="520.0" layoutY="320.0" prefHeight="300.0" prefWidth="313.0" />
+      <Label layoutX="287.0" layoutY="320.0" prefHeight="27.0" prefWidth="234.0" text="Users you follow who own this game:">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+      <Label fx:id="genre" layoutX="280.0" layoutY="275.0" prefHeight="27.0" prefWidth="502.0" text="Genre: ">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
+   </children>
+</Pane>
