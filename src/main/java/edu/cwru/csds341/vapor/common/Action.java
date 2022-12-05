@@ -235,7 +235,12 @@ public enum Action {
      *                      or this method is passed a closed CallableStatement
      */
     public static void applyAll(CallableStatement cs, Map<Parameter, String> args) throws SQLException {
-        for (var entry : args.entrySet()) entry.getKey().apply(cs, entry.getValue());
+        for (var entry : args.entrySet()) {
+            for (var req : entry.getKey().requirements)
+                if (!req.accepts(entry.getValue()))
+                    throw new IllegalArgumentException("Internally failed to validate arguments: " + req.getMessage());
+            entry.getKey().apply(cs, entry.getValue());
+        }
     }
 
 
@@ -297,7 +302,7 @@ public enum Action {
 
         /** Maps to SQL data types */
         public enum PType implements Requirement {
-            INT(Pattern.compile("\\d{1,8}"),"(#){1,8}") {
+            INT(Pattern.compile("\\d{1,9}"),"(#){1,9}") {
                 @Override
                 void apply(CallableStatement statement, String argName, String val) throws SQLException {
                     statement.setInt(argName, Integer.parseInt(val));
@@ -325,8 +330,8 @@ public enum Action {
                 }
             },
             DATETIME(
-                    Pattern.compile("\\d\\d\\d\\d-(?:[0-9]|1[012])-(?:0?[1-9]|1[012]) ([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.\\d+)?"),
-                    "YYYY-MM-DD hh:mm:ss.nnnn") {
+                    Pattern.compile("\\d\\d\\d\\d-(?:[0-9]|1[012])-(?:0?[1-9]|1[012]) ([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]"),
+                    "YYYY-MM-DD hh:mm:ss") {
                 @Override
                 void apply(CallableStatement statement, String argName, String val) throws SQLException {
                     statement.setTimestamp(argName, Timestamp.valueOf(val));
