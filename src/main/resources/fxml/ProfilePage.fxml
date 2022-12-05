@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="627.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Pane prefHeight="627.0" prefWidth="240.0" style="-fx-background-color: #000000;">
+         <children>
+            <Button fx:id="profileBtn" layoutX="20.0" layoutY="52.0" mnemonicParsing="false" onAction="#profileClick" prefHeight="76.0" prefWidth="191.0" style="-fx-border-color: #ADD8E6; -fx-border-width: 5;" text="Profile">
+               <font>
+                  <Font size="29.0" />
+               </font>
+            </Button>
+            <Button fx:id="libraryBtn" layoutX="20.0" layoutY="146.0" mnemonicParsing="false" onAction="#libraryClick" prefHeight="76.0" prefWidth="191.0" style="-fx-border-color: #ADD8E6; -fx-border-width: 5;" text="Library">
+               <font>
+                  <Font size="29.0" />
+               </font>
+            </Button>
+            <Button fx:id="storeBtn" layoutX="20.0" layoutY="238.0" mnemonicParsing="false" onAction="#storeClick" prefHeight="76.0" prefWidth="191.0" style="-fx-border-color: #ADD8E6; -fx-border-width: 5;" text="Store">
+               <font>
+                  <Font size="29.0" />
+               </font>
+            </Button>
+         </children>
+      </Pane>
+      <Label fx:id="usernamelabel" alignment="CENTER" layoutX="311.0" layoutY="23.0" prefHeight="109.0" prefWidth="488.0" text="Username">
+         <font>
+            <Font size="41.0" />
+         </font>
+      </Label>
+      <Pane layoutX="240.0" layoutY="196.0" prefHeight="431.0" prefWidth="660.0" style="-fx-background-color: #E1D9D1;">
+         <children>
+            <Label layoutX="9.0" layoutY="14.0" prefHeight="56.0" prefWidth="167.0" text="Comments:">
+               <font>
+                  <Font size="19.0" />
+               </font>
+            </Label>
+            <TextField fx:id="commentbar" layoutX="16.0" layoutY="377.0" prefHeight="24.0" prefWidth="231.0" promptText="Enter Comment...." />
+            <Button layoutX="253.0" layoutY="377.0" mnemonicParsing="false" onAction="#submitComment" prefHeight="25.0" prefWidth="74.0" text="Submit Comment" />
+            <ListView fx:id="commentlist" layoutX="16.0" layoutY="58.0" prefHeight="312.0" prefWidth="309.0" />
+            <Label layoutX="343.0" layoutY="28.0" text="Friends:">
+               <font>
+                  <Font size="19.0" />
+               </font>
+            </Label>
+            <ListView fx:id="friendslist" layoutX="351.0" layoutY="58.0" prefHeight="350.0" prefWidth="279.0" />
+         </children>
+      </Pane>
+      <Label fx:id="joindatelabel" alignment="CENTER" layoutX="455.0" layoutY="118.0" prefHeight="28.0" prefWidth="201.0" text="Join Date:">
+         <font>
+            <Font size="18.0" />
+         </font></Label>
+      <Button fx:id="followbutton" layoutX="517.0" layoutY="165.0" mnemonicParsing="false" onAction="#followUser" text="Follow user" />
+   </children>
+</Pane>

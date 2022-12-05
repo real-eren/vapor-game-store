@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<Pane prefHeight="627.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Pane prefHeight="627.0" prefWidth="240.0" style="-fx-background-color: #000000;">
+         <children>
+            <Button layoutX="20.0" layoutY="52.0" mnemonicParsing="false" onAction="#profileClick" prefHeight="76.0" prefWidth="191.0" style="-fx-border-color: #ADD8E6; -fx-border-width: 5;" text="Profile">
+               <font>
+                  <Font size="29.0" />
+               </font>
+            </Button>
+            <Button layoutX="20.0" layoutY="146.0" mnemonicParsing="false" onAction="#libraryClick" prefHeight="76.0" prefWidth="191.0" style="-fx-border-color: #ADD8E6; -fx-border-width: 5;" text="Library">
+               <font>
+                  <Font size="29.0" />
+               </font>
+            </Button>
+            <Button layoutX="20.0" layoutY="238.0" mnemonicParsing="false" onAction="#storeClick" prefHeight="76.0" prefWidth="191.0" style="-fx-border-color: #ADD8E6; -fx-border-width: 5;" text="Store">
+               <font>
+                  <Font size="29.0" />
+               </font>
+            </Button>
+         </children>
+      </Pane>
+      <Label layoutX="444.0" layoutY="25.0" prefHeight="109.0" prefWidth="240.0" text="Game Store">
+         <font>
+            <Font size="41.0" />
+         </font>
+      </Label>
+      <TextField fx:id="searchbar" layoutX="330.0" layoutY="150.0" prefHeight="25.0" prefWidth="167.0" />
+      <Label layoutX="266.0" layoutY="149.0" prefHeight="27.0" prefWidth="64.0" text="Search:">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
+      <Label layoutX="622.0" layoutY="149.0" text="Top Sold Games:">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
+      <ListView fx:id="gamelist" layoutX="264.0" layoutY="174.0" prefHeight="453.0" prefWidth="300.0" />
+      <ListView fx:id="topsoldlist" layoutX="579.0" layoutY="174.0" prefHeight="453.0" prefWidth="300.0" />
+   </children>
+</Pane>

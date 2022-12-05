@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<Pane prefHeight="627.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Pane prefHeight="627.0" prefWidth="240.0" style="-fx-background-color: #000000;">
+         <children>
+            <Button layoutX="20.0" layoutY="52.0" mnemonicParsing="false" onAction="#profileClick" prefHeight="76.0" prefWidth="191.0" style="-fx-border-color: #ADD8E6; -fx-border-width: 5;" text="Profile">
+               <font>
+                  <Font size="29.0" />
+               </font>
+            </Button>
+            <Button layoutX="20.0" layoutY="146.0" mnemonicParsing="false" onAction="#libraryClick" prefHeight="76.0" prefWidth="191.0" style="-fx-border-color: #ADD8E6; -fx-border-width: 5;" text="Library">
+               <font>
+                  <Font size="29.0" />
+               </font>
+            </Button>
+            <Button layoutX="20.0" layoutY="238.0" mnemonicParsing="false" onAction="#storeClick" prefHeight="76.0" prefWidth="191.0" style="-fx-border-color: #ADD8E6; -fx-border-width: 5;" text="Store">
+               <font>
+                  <Font size="29.0" />
+               </font>
+            </Button>
+         </children>
+      </Pane>
+      <Label layoutX="291.0" layoutY="21.0" prefHeight="109.0" prefWidth="434.0" text="Your game library:">
+         <font>
+            <Font size="41.0" />
+         </font>
+      </Label>
+      <ListView fx:id="gamelist" layoutX="272.0" layoutY="160.0" prefHeight="467.0" prefWidth="594.0" />
+   </children>
+</Pane>
