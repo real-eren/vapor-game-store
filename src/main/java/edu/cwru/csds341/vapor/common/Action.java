@@ -50,7 +50,7 @@ public enum Action {
     MAKE_COMMENT(
         AType.INSERT,
         "add new comment", "mc",
-        "[InsertComment(?,?,?,?)]",
+        "[InsertComment](?,?,?,?)",
         MC_COMMENTER_ID,
         MC_PROFILE_ID,
         MC_DATETIME,
@@ -253,7 +253,7 @@ public enum Action {
         MC_COMMENTER_ID(PType.INT, "commenter_id", "commenter's user id"),
         MC_PROFILE_ID(PType.INT, "profile_id", "profile user's id"),
         MC_DATETIME(PType.DATETIME, "datetime", "datetime"),
-        MC_MESSAGE(PType.STRING, "message", "message"), //100
+        MC_MESSAGE(PType.STRING, "message", "message", new Requirement.LengthReq(1,100)),
         LFR_USER_ID(PType.INT, "user_id", "followed-user id"),
         LFD_USER_ID(PType.INT, "user_id", "followed-user id"),
         FU_FOLLOWER_ID(PType.INT, "follower_id", "userA (follower) id"),
