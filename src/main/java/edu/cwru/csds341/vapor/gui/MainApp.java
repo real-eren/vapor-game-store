@@ -7,6 +7,8 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 
 /**
  * GUI main class.
@@ -14,10 +16,11 @@ import java.io.IOException;
 public class MainApp extends Application {
     private static Stage stage;
 
+
     @Override
     public void start(@SuppressWarnings("exports") Stage s) throws IOException {
         stage=s;
-        setRoot("primary","");
+        setRoot("LoginPage","Vapor Store");
     }
 
     static void setRoot(String fxml) throws IOException {
@@ -38,7 +41,11 @@ public class MainApp extends Application {
 
 
     public static void main(String[] args) {
+        System.out.println(getDateTime());
         launch(args);
+    }
+    public static String getDateTime() {
+        return java.time.LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString().replace("T"," ");
     }
 
 }
