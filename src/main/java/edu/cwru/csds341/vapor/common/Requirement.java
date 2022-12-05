@@ -21,7 +21,7 @@ public interface Requirement {
 
         @Override
         public boolean accepts(String str) {
-            return false;
+            return minLength <= str.length() && str.length() <= maxLength;
         }
 
         @Override
